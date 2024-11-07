@@ -14,13 +14,14 @@ public:
 private:
 	//函数操作
 	void Clear();//重载Clear函数
-	//bool NextLine();//下一行
-	//bool PrevLine();//上一行
+	bool NextLine();//下一行
+	bool PrevLine();//上一行
+	void ShowCurRow();//显示当前行
 	//bool GotoLine();//转到指定行
 	//bool InsertLine();//插入行
 	//bool ChangeLine();//修改行
 	bool ReadFile();//读文件
-	bool WriteFile();//写文件
+	bool WriteFile(bool OutPutFlag = 1);//写文件
 	//void FindString();//查找字符串
 	void ViewFile();//查看文件
 	void Help();//帮助
@@ -117,7 +118,7 @@ bool SimpleTextEditor::ReadFile()
 	return bLoaded;
 }
 
-bool SimpleTextEditor::WriteFile() {
+bool SimpleTextEditor::WriteFile(bool OutPutFlag) {
 	bool bSucessed = false;
 	CharString strMsg;
 	if (m_strFileName.IsEmpty())
@@ -152,6 +153,10 @@ bool SimpleTextEditor::WriteFile() {
 			bSucessed = true;
 		}
 	}
+	if (OutPutFlag)
+	{
+		printf("文件 \"%s\" 保存成功\n", m_strFileName.ToCStr());
+	}
 	return bSucessed;
 }
 
@@ -167,7 +172,57 @@ void SimpleTextEditor::ViewFile()
 
 void SimpleTextEditor::Run() {
 	Help();
-	//ViewFile();
+	ShowCurRow();
+	char UserCommand, CharTmp;
+	bool bRunFlag = 1;
+	while (bRunFlag)
+	{
+		// 获取用户输入的命令
+		do {
+			printf("command:");
+			do {
+				UserCommand = getchar();
+			} while (' ' == UserCommand);
+		} while ('\n' == UserCommand );
+		//清空输入流
+		while ((CharTmp = getchar()) != EOF && CharTmp != '\n');
+
+		if (UserCommand >= 'A' && UserCommand <= 'Z')
+			UserCommand = tolower(UserCommand);
+
+		switch (UserCommand)
+		{
+		case 'h':
+		case '?':
+			Help();
+			break;
+		case 'v':
+			ViewFile();
+			break;
+		case 's':
+			WriteFile();
+			break;
+		case 'n':
+			NextLine();
+			break;
+		case 'p':
+			PrevLine();
+			break;
+		case 'q':
+			bRunFlag = 0;
+			break;
+		default:
+			printf("invaild command!(use \'h/H\' to get help)\n");
+			break;
+		}
+	}
+
+	if(WriteFile(0))
+		printf("Successful Exit with file saved automaticly!\n");
+	else
+		printf("Fail to save the file !\n");
+
+	return;
 }
 
 void SimpleTextEditor::Help()
@@ -177,6 +232,48 @@ void SimpleTextEditor::Help()
 	printf("V/v: 查看文件内容\n");
 	printf("S/s: 保存文件\n");
 	printf("Q/q: 退出编辑器\n");
+	printf("N/n: 下一行\n");
+	printf("P/p: 上一行\n");
 	return;
+}
+
+void SimpleTextEditor::ShowCurRow()
+{
+	CharString* pStrMsg;
+	GetElem(m_nCurRow, pStrMsg);
+	printf("%d: %s\n", m_nCurRow+1, pStrMsg->ToCStr());
+	return;
+}
+
+bool SimpleTextEditor::NextLine()
+{
+	bool bNextFlag = false;
+	CharString* pStrMsg;
+	if (GetElem(m_nCurRow+1, pStrMsg))
+	{
+		m_nCurRow++;
+		printf("%d: %s\n", m_nCurRow + 1, pStrMsg->ToCStr());
+	}
+	else
+	{
+		printf("已经到达文件末尾\n");
+	}
+	return bNextFlag;
+}
+
+bool SimpleTextEditor::PrevLine()
+{
+	bool bPrevFlag = false;
+	CharString* pStrMsg;
+	if (GetElem(m_nCurRow - 1, pStrMsg))
+	{
+		m_nCurRow--;
+		printf("%d: %s\n", m_nCurRow + 1, pStrMsg->ToCStr());
+	}
+	else
+	{
+		printf("已经到达文件开头\n");
+	}
+	return bPrevFlag;
 }
 #endif
