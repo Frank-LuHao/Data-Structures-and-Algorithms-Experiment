@@ -17,12 +17,18 @@ private:
 	bool NextLine();//下一行
 	bool PrevLine();//上一行
 	void ShowCurRow();//显示当前行
-	//bool GotoLine();//转到指定行
-	//bool InsertLine();//插入行
-	//bool ChangeLine();//修改行
+	bool GotoLine();//转到指定行
+	bool GotoFirstLine();//转到第一行
+	bool GotoLastLine();//转到最后一行
+	bool GotoLineAux(int nLineNum); //转到指定行辅助函数
+	bool InsertLine();//插入行
+	bool DeleteLine();//删除当前行
 	bool ReadFile();//读文件
 	bool WriteFile(bool OutPutFlag = 1);//写文件
-	//void FindString();//查找字符串
+	bool FindString();//查找字符串
+	bool FindStringAux(const CharString& strFind, int &nLineNum, int &nIndex);//查找字符串辅助函数
+	bool ChangeLine();//替换当前行或所有行的指定文本串
+	bool ReplaceLineAux(const CharString& strReplace, int &nLineNum, int &nIndex);//替换字符串辅助函数
 	void ViewFile();//查看文件
 	void Help();//帮助
 	
@@ -67,7 +73,7 @@ bool SimpleTextEditor::ReadFile()
 	else
 	{
 		FILE* pFile = NULL;
-		if (!(pFile = fopen(m_strFileName.ToCStr(), "rb")))
+		if (!(pFile = fopen(m_strFileName.ToCStr(), "rb"))) 
 		{
 			printf("文件 \"%s\" 未找到", m_strFileName.ToCStr());
 		}
@@ -195,18 +201,45 @@ void SimpleTextEditor::Run() {
 		case 'h':
 		case '?':
 			Help();
+			ShowCurRow();
 			break;
 		case 'v':
 			ViewFile();
+			ShowCurRow();
 			break;
 		case 's':
 			WriteFile();
+			ShowCurRow();
 			break;
 		case 'n':
 			NextLine();
 			break;
 		case 'p':
 			PrevLine();
+			break;
+		case 'g':
+			GotoLine();
+			break;
+		case 'b':
+			GotoFirstLine();
+			break;
+		case 'e':
+			GotoLastLine();
+			break;
+		case 'i':
+			InsertLine();
+			ShowCurRow();
+			break;
+		case 'd':
+			DeleteLine();
+			ShowCurRow();
+			break;
+		case 'f':
+			FindString();
+			break;
+		case 'c':
+			ChangeLine();
+			ShowCurRow();
 			break;
 		case 'q':
 			bRunFlag = 0;
@@ -216,11 +249,23 @@ void SimpleTextEditor::Run() {
 			break;
 		}
 	}
-
-	if(WriteFile(0))
-		printf("Successful Exit with file saved automaticly!\n");
-	else
-		printf("Fail to save the file !\n");
+	
+	//退出时的自动保存询问
+	char charSaveCommand;
+	do {
+		printf("是否选择保存？（y/n）:");
+		charSaveCommand = getchar();
+		while ((CharTmp = getchar()) != EOF && CharTmp != '\n');  //清空输入流
+		if (charSaveCommand == 'y') {
+			if (WriteFile(0))
+				printf("Successful Exit with file saved automaticly!\n");
+			else
+				printf("Fail to save the file !\n");
+		}
+		else if (charSaveCommand == 'n') {
+			printf("Successful quit.\n");
+		}
+	} while (charSaveCommand != 'y' && charSaveCommand != 'n');
 
 	return;
 }
@@ -234,14 +279,23 @@ void SimpleTextEditor::Help()
 	printf("Q/q: 退出编辑器\n");
 	printf("N/n: 下一行\n");
 	printf("P/p: 上一行\n");
+	printf("G/g: 转到指定行\n");
+	printf("B/b: 转到第一行\n");
+	printf("E/e: 转到最后一行\n");
+	printf("I/i: 插入行\n");
+	printf("D/d: 删除行\n");
+	printf("F/f: 查找字符串\n");
+	printf("C/c: 替换字符串\n");
 	return;
 }
 
 void SimpleTextEditor::ShowCurRow()
 {
 	CharString* pStrMsg;
-	GetElem(m_nCurRow, pStrMsg);
-	printf("%d: %s\n", m_nCurRow+1, pStrMsg->ToCStr());
+	if (GetElem(m_nCurRow, pStrMsg))
+		printf("%d: %s\n", m_nCurRow+1, pStrMsg->ToCStr());
+	else 
+		printf("文件为空\n");
 	return;
 }
 
@@ -275,5 +329,241 @@ bool SimpleTextEditor::PrevLine()
 		printf("已经到达文件开头\n");
 	}
 	return bPrevFlag;
+}
+
+bool SimpleTextEditor::GotoLine()
+{
+	int nLineNum;
+	printf("请输入行号：");
+	scanf("%d", &nLineNum);
+	getchar(); //清空行尾换行符
+	return GotoLineAux(nLineNum);
+}
+
+bool SimpleTextEditor::GotoLineAux(int nLineNum)
+{
+	bool bGotoFlag = false;
+	CharString* pStrMsg;
+	if (GetElem(nLineNum - 1, pStrMsg))
+	{
+		m_nCurRow = nLineNum - 1;
+		printf("%d: %s\n", m_nCurRow + 1, pStrMsg->ToCStr());
+	}
+	else
+	{
+		printf("行号超出范围\n");
+	}
+	return bGotoFlag;
+}
+
+bool SimpleTextEditor::GotoFirstLine()
+{
+	return GotoLineAux(1);
+}
+
+bool SimpleTextEditor::GotoLastLine()
+{
+	return GotoLineAux(Length());
+}
+
+bool SimpleTextEditor::InsertLine()
+{
+	bool bInsertFlag = false;
+	char strLineNum[128];
+	char charTmp;
+	int nLineNum;
+	printf("请输入要插入的行号（默认当前行）：");
+	strcpy(strLineNum, Read(cin).ToCStr());
+	if (strlen(strLineNum) == 0)
+	{
+		nLineNum = m_nCurRow;
+	}
+	else
+	{
+		nLineNum = atoi(strLineNum);
+		if (nLineNum < 1 || nLineNum > Length() + 1)
+		{
+			printf("行号超出范围\n");
+			return bInsertFlag;
+		}
+		nLineNum--;
+	}
+	printf("请输入要插入的内容：");
+	CharString StrMsg = Read(cin);
+	CharString* pStrMsg = new CharString(StrMsg);
+	bInsertFlag = Insert(nLineNum, pStrMsg);
+	if (bInsertFlag)
+	{
+		m_nCurRow = nLineNum;
+		printf("插入成功\n");
+	}
+	else
+	{
+		delete pStrMsg;
+		printf("插入失败\n");
+	}
+	
+	return bInsertFlag;
+}
+
+bool SimpleTextEditor::DeleteLine()
+{
+	bool bDeleteFlag = false;
+	CharString* pStrMsg;
+	if (Delete(m_nCurRow, pStrMsg))
+	{
+		delete pStrMsg;
+		bDeleteFlag = true;
+		printf("删除成功\n");
+	}
+	else
+	{
+		printf("删除失败\n");
+	}
+	return bDeleteFlag;
+}
+
+bool SimpleTextEditor::FindStringAux(const CharString& strFind, int &nLineNum, int &nIndex)
+{
+	bool bFindFlag = false;
+	CharString* pStrMsg;
+	nIndex = 0;
+	Head();
+	for (int i = 0; i < nLineNum; i++) Next(pStrMsg); //定位到当前行的前一行
+	while (Next(pStrMsg) && pStrMsg)
+	{
+		nLineNum++;
+		nIndex = pStrMsg->KMPIndex(strFind);
+		if (nIndex >= 0)
+		{
+			bFindFlag = true;
+			break;
+		}
+	}
+	nLineNum--;
+	return bFindFlag;
+}
+
+bool SimpleTextEditor::FindString()
+{
+	bool bFindFlag = false;
+	CharString strFind;
+	int nLineNum, nIndex;
+
+	char charSearchBegin, CharTmp;
+	do {
+		printf("是否从当前行开始查找（否则从头开始）？（y/n）:");
+		charSearchBegin = getchar();
+		while ((CharTmp = getchar()) != EOF && CharTmp != '\n');  //清空输入流
+		if (charSearchBegin == 'y') {
+			nLineNum = m_nCurRow;
+		}
+		else if (charSearchBegin == 'n') {
+			nLineNum = 0;
+		}
+	} while (charSearchBegin != 'y' && charSearchBegin != 'n');
+
+	printf("请输入要查找的字符串：");
+	strFind = Read(cin);
+	if (strFind.IsEmpty())
+	{
+		printf("查找字符串为空\n");
+		return bFindFlag;
+	}
+	else if (FindStringAux(strFind, nLineNum, nIndex))
+	{
+		m_nCurRow = nLineNum;
+		CharString* pStrMsg;
+		GetElem(m_nCurRow, pStrMsg);
+		printf("%d: %s\n", m_nCurRow + 1, pStrMsg->ToCStr());
+		printf("在第%d行第%d列找到字符串\n", m_nCurRow + 1, nIndex + 1);
+		bFindFlag = true;
+	}
+	else
+	{
+		printf("未找到字符串\n");
+	}
+	return bFindFlag;
+}
+
+bool SimpleTextEditor::ReplaceLineAux(const CharString& strReplace, int &nLineNum, int &nIndex)
+{
+	bool bReplaceFlag = false;
+	CharString TmpStr;
+	CharString* pStrMsg;
+	GetElem(nLineNum, pStrMsg);
+	TmpStr = SubString(*pStrMsg, 0, nIndex);
+	TmpStr += strReplace;
+	TmpStr += SubString(*pStrMsg, nIndex + strReplace.Length(), pStrMsg->Length() - nIndex - strReplace.Length());
+	Copy(*pStrMsg, TmpStr);
+	bReplaceFlag = true;
+	return bReplaceFlag;
+}
+
+bool SimpleTextEditor::ChangeLine()
+{
+	bool bChangeFlag = true;
+	char charChangeBegin, CharTmp;
+	CharString strFind, strReplace;
+	int nLineNum = 0, nIndex;
+
+	do {
+		printf("是否只替换当前行（否则替换所有行）？（y/n）:");
+		charChangeBegin = getchar();
+		while ((CharTmp = getchar()) != EOF && CharTmp != '\n');  //清空输入流
+		if (charChangeBegin == 'y') {
+			nLineNum = m_nCurRow;
+		}
+		else if (charChangeBegin == 'n') {
+			nLineNum = 0;
+		}
+	} while (charChangeBegin != 'y' && charChangeBegin != 'n');
+
+	printf("请输入要查找的字符串：");
+	strFind = Read(cin);
+	if (strFind.IsEmpty())
+	{
+		printf("查找字符串为空\n");
+		return bChangeFlag;
+	}
+	printf("请输入要替换的字符串：");
+	strReplace = Read(cin);
+	if (strReplace.IsEmpty())
+	{
+		printf("替换字符串为空\n");
+		return bChangeFlag;
+	}
+
+	if (charChangeBegin == 'y') 	{
+		if (FindStringAux(strFind, nLineNum, nIndex))
+		{
+			if (ReplaceLineAux(strReplace, nLineNum, nIndex)) {
+				printf("替换成功\n");
+				bChangeFlag = true;
+			}
+			else {
+				printf("替换失败\n");}
+			}
+		else
+		{
+			printf("未找到字符串\n");
+		}
+	}
+	else
+	{
+		while (FindStringAux(strFind, nLineNum, nIndex))
+		{
+				bChangeFlag &= ReplaceLineAux(strReplace, nLineNum, nIndex);
+		}
+		if (bChangeFlag) {
+			printf("替换成功\n");
+		}
+		else
+		{
+			printf("替换失败\n");
+		}
+	}
+	
+	return bChangeFlag;
 }
 #endif
