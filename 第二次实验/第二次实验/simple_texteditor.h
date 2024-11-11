@@ -42,7 +42,6 @@ SimpleTextEditor::SimpleTextEditor(char fName[])
 	m_nCurRow = 0;
 	CharString tmpName(fName);
 	m_strFileName = tmpName;
-	ReadFile();
 }
 
 SimpleTextEditor::~SimpleTextEditor()
@@ -75,7 +74,7 @@ bool SimpleTextEditor::ReadFile()
 		FILE* pFile = NULL;
 		if (!(pFile = fopen(m_strFileName.ToCStr(), "rb"))) 
 		{
-			printf("文件 \"%s\" 未找到", m_strFileName.ToCStr());
+			printf("文件 \"%s\" 未找到\n", m_strFileName.ToCStr());
 		}
 		else
 		{
@@ -91,7 +90,7 @@ bool SimpleTextEditor::ReadFile()
 			while ('\0' != *p) p++;
 			if (p - pBuf + 1 < nFLen)
 			{//不是文本文件
-				printf("文件 \"%s\" 并不是一个文本文件", m_strFileName.ToCStr());
+				printf("文件 \"%s\" 并不是一个文本文件\n", m_strFileName.ToCStr());
 			}
 			else
 			{
@@ -177,6 +176,8 @@ void SimpleTextEditor::ViewFile()
 }
 
 void SimpleTextEditor::Run() {
+	if (!ReadFile())
+		return;
 	Help();
 	ShowCurRow();
 	char UserCommand, CharTmp;
@@ -336,7 +337,7 @@ bool SimpleTextEditor::GotoLine()
 	int nLineNum;
 	printf("请输入行号：");
 	scanf("%d", &nLineNum);
-	getchar(); //清空行尾换行符
+	while (getchar() != '\n');  //清空输入流
 	return GotoLineAux(nLineNum);
 }
 
@@ -351,7 +352,7 @@ bool SimpleTextEditor::GotoLineAux(int nLineNum)
 	}
 	else
 	{
-		printf("行号超出范围\n");
+		printf("行号错误！\n");
 	}
 	return bGotoFlag;
 }
@@ -383,7 +384,7 @@ bool SimpleTextEditor::InsertLine()
 		nLineNum = atoi(strLineNum);
 		if (nLineNum < 1 || nLineNum > Length() + 1)
 		{
-			printf("行号超出范围\n");
+			printf("行号错误！\n");
 			return bInsertFlag;
 		}
 		nLineNum--;

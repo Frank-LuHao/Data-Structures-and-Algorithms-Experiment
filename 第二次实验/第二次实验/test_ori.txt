@@ -1,3 +1,4 @@
+文本一
 The Adventure of the Dancing Men
 
 by Sir Arthur Conan Doyle
@@ -10,3 +11,10 @@ Your pages have given me sunshine when all was cloud.
 It is a joy to me to see you, to know that you are here. 
 That is not for my sake, Watson, but for yours. 
 It is hard upon you to come to me with your troubles, but you can be sure that if I have health and strength left I shall be only too glad to share them with you.
+
+文本二
+在浩瀚的宇宙中，我们生活的地球只是一个微小的点。
+然而，就在这颗蓝色星球上，每时每刻都在上演着无数精彩纷呈的故事。
+从繁华的都市到宁静的乡村，从喧嚣的市井小巷到幽深的森林，每一个角落都充满了生活的气息和情感的波动。
+人们在这片土地上奋斗、梦想、欢笑和哭泣，共同编织着属于自己的命运。
+无论未来会面临怎样的挑战，我们都将携手前行，因为这里是我们共同的家园，充满了希望与可能。
