@@ -1,6 +1,7 @@
 #if !defined(_BINARY_TREE_BASE_H_)
 #define _BINARY_TREE_BASE_H_
 #include "lk_queue.h"
+#include <iostream>
 using namespace std;
 template <class  ElemType,class NodePtr>
 class BinaryTreeBase
@@ -8,41 +9,41 @@ class BinaryTreeBase
 public:
 	BinaryTreeBase();
 	~BinaryTreeBase();
-	// ¶þ²æÊ÷·½·¨ÉùÃ÷¼°ÖØÔØ±àÒëÏµÍ³Ä¬ÈÏ·½·¨ÉùÃ÷:
-	virtual NodePtr GetRoot() const = 0;						// ·µ»Ø¶þ²æÊ÷µÄ¸ù
-	virtual bool NodeEmpty(NodePtr cur) const = 0;				// ÅÐ¶Ï½áµãcurÊÇ·ñÎª¿Õ
-	virtual bool GetItem(NodePtr cur, ElemType& e) const = 0;	// ·µ»Ø½áµãcurµÄÔªËØÖµ
-	virtual bool SetElem(NodePtr cur, const ElemType& e) = 0;	// ½«½áµãcurµÄÖµÖÃÎªe
-	virtual bool Empty() const = 0;								// ÅÐ¶Ï¶þ²æÊ÷ÊÇ·ñÎª¿Õ
-	virtual NodePtr LeftChild(NodePtr cur) const = 0;		// ·µ»Ø¶þ²æÊ÷ÖÐ½áµãcurµÄ×óº¢×Ó
-	virtual NodePtr RightChild(NodePtr cur) const = 0;	// ·µ»Ø¶þ²æÊ÷ÖÐ½áµãcurµÄÓÒº¢×Ó
-	virtual NodePtr Parent(NodePtr cur) const = 0;		// ·µ»Ø¶þ²æÊ÷ÖÐ½áµãcurµÄË«Ç×
-	virtual bool CreateBinaryTree(ElemType pre[], ElemType in[], int n) = 0;//¸ù¾ÝÏÈÐò¡¢ÖÐÐòÐòÁÐ´´½¨¶þ²æÊ÷
-	virtual void InsertLeftChild(NodePtr cur, const ElemType& e);		// ²åÈë×óº¢×Ó
-	virtual void InsertRightChild(NodePtr cur, const ElemType& e);		// ²åÈëÓÒº¢×Ó
-	virtual void InOrder(void (*visit)(const ElemType&)) const;	// ¶þ²æÊ÷µÄÖÐÐò±éÀú	
-	virtual void PreOrder(void (*visit)(const ElemType&)) const;	// ¶þ²æÊ÷µÄÏÈÐò±éÀú
-	virtual void PostOrder(void (*visit)(const ElemType&)) const;	// ¶þ²æÊ÷µÄºóÐò±éÀú
-	virtual void LevelOrder(void (*visit)(const ElemType&)) const;	// ¶þ²æÊ÷µÄ²ã´Î±éÀú
-	virtual int NodeCount() const;									// Çó¶þ²æÊ÷µÄ½áµã¸öÊý
-	virtual void DeleteLeftChild(NodePtr cur);						// É¾³ý×ó×ÓÊ÷
-	virtual void DeleteRightChild(NodePtr cur);						// É¾³ýÓÒ×Ó´å
-	virtual int	Height() const;										// Çó¶þ²æÊ÷µÄ¸ß
-	void DisplayBTWithTreeShape();//ÏÔÊ¾¶þ²æÊ÷
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø±ï¿½ï¿½ï¿½ÏµÍ³Ä¬ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:
+	virtual NodePtr GetRoot() const = 0;						// ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½
+	virtual bool NodeEmpty(NodePtr cur) const = 0;				// ï¿½Ð¶Ï½ï¿½ï¿½curï¿½Ç·ï¿½Îªï¿½ï¿½
+	virtual bool GetItem(NodePtr cur, ElemType& e) const = 0;	// ï¿½ï¿½ï¿½Ø½ï¿½ï¿½curï¿½ï¿½Ôªï¿½ï¿½Öµ
+	virtual bool SetElem(NodePtr cur, const ElemType& e) = 0;	// ï¿½ï¿½ï¿½ï¿½ï¿½curï¿½ï¿½Öµï¿½ï¿½Îªe
+	virtual bool Empty() const = 0;								// ï¿½Ð¶Ï¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½ï¿½
+	virtual NodePtr &LeftChild(NodePtr cur) const = 0;		// ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½curï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual NodePtr &RightChild(NodePtr cur) const = 0;	// ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½curï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½
+	virtual NodePtr Parent(NodePtr cur) const = 0;		// ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½curï¿½ï¿½Ë«ï¿½ï¿½
+	virtual bool CreateBinaryTree(ElemType pre[], ElemType in[], int n) = 0;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual void InsertLeftChild(NodePtr cur, const ElemType& e);		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual void InsertRightChild(NodePtr cur, const ElemType& e);		// ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½
+	virtual void InOrder(void (*visit)(const ElemType&)) const;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½	
+	virtual void PreOrder(void (*visit)(const ElemType&)) const;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual void PostOrder(void (*visit)(const ElemType&)) const;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual void LevelOrder(void (*visit)(const ElemType&)) const;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä²ï¿½Î±ï¿½ï¿½ï¿½
+	virtual int NodeCount() const;									// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual void DeleteLeftChild(NodePtr cur);						// É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual void DeleteRightChild(NodePtr cur);						// É¾ï¿½ï¿½ï¿½ï¿½ï¿½Ó´ï¿½
+	virtual int	Height() const;										// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½
+	void DisplayBTWithTreeShape();//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 protected:
-	// ¸¨Öúº¯ÊýÄ£°å:
-	int NodeCountAux(NodePtr r) const;							// ·µ»Ø¶þ²æÊ÷µÄ½áµã¸öÊý
-	void DestroyAux(NodePtr r);								// Ïú»ÙÒÔrÎª¸ù¶þ²æÊ÷
-	void PreOrderAux(NodePtr r, void (*visit)(const ElemType&)) const;	// ÏÈÐò±éÀú
-	void InOrderAux(NodePtr r, void (*visit)(const ElemType&)) const;		// ÖÐÐò±éÀú
-	void PostOrderAux(NodePtr r, void (*visit)(const ElemType&)) const;	// ºóÐò±éÀú
-	int HeightAux(NodePtr r) const;							// ·µ»Ø¶þ²æÊ÷µÄ¸ß
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½:
+	int NodeCountAux(NodePtr r) const;							// ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual void DestroyAux(NodePtr& r);								// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rÎªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void PreOrderAux(NodePtr r, void (*visit)(const ElemType&)) const;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void InOrderAux(NodePtr r, void (*visit)(const ElemType&)) const;		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void PostOrderAux(NodePtr r, void (*visit)(const ElemType&)) const;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	int HeightAux(NodePtr r) const;							// ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½
 	NodePtr CreateBinaryTreeAux(NodePtr pParent,ElemType pre[], ElemType in[],
-		int preLeft, int preRight, int inLeft, int inRight,bool bLeft);//¸ù¾ÝÇ°ÐòºÍÖÐÐòÐòÁÐ´´½¨¶þ²æÊ÷
-	void DisplayBTWithTreeShapeAux(NodePtr r, int level);//ÏÔÊ¾¶þ²æÊ÷¸¨Öúº¯Êý
-	virtual ElemType NodeElem(NodePtr cur) const = 0;		// ·µ»ØÖ¸¶¨½ÚµãµÄÔªËØÖµ
-	virtual void ReleaseNode(NodePtr& cur) = 0;				// ½«½áµãcurÖÃ¿Õ,Èç¹ûÊÇÁ´Ê½´æ´¢É¾³ý½ÚµãÄÚ´æ
-	virtual NodePtr CreateChildNode(NodePtr cur, bool bLeft) = 0;//´´½¨cur½ÚµãµÄ×Ó½Úµã
+		int preLeft, int preRight, int inLeft, int inRight,bool bLeft);//ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void DisplayBTWithTreeShapeAux(NodePtr r, int level);//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	virtual ElemType NodeElem(NodePtr cur) const = 0;		// ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Úµï¿½ï¿½Ôªï¿½ï¿½Öµ
+	virtual void ReleaseNode(NodePtr& cur) = 0;				// ï¿½ï¿½ï¿½ï¿½ï¿½curï¿½Ã¿ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½æ´¢É¾ï¿½ï¿½ï¿½Úµï¿½ï¿½Ú´ï¿½
+	virtual NodePtr CreateChildNode(NodePtr cur, bool bLeft) = 0;//ï¿½ï¿½ï¿½ï¿½curï¿½Úµï¿½ï¿½ï¿½Ó½Úµï¿½
 };
 template <class ElemType,class NodePtr>
 BinaryTreeBase<ElemType,NodePtr>::BinaryTreeBase()
@@ -56,180 +57,180 @@ BinaryTreeBase<ElemType,NodePtr>::~BinaryTreeBase()
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::PreOrderAux(NodePtr r, void (*visit)(const ElemType&)) const
-// ²Ù×÷½á¹û£ºÏÈÐò±éÀúÒÔrÎª¸ùµÄ¶þ²æÊ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rÎªï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	if (!NodeEmpty(r))
-	{	// ¸ù·Ç¿Õ
-		(*visit)(NodeElem(r));			// ·ÃÎÊ¸ù½áµã
-		PreOrderAux(LeftChild(r), visit);	// ±éÀú×ó×ÓÊ÷
-		PreOrderAux(RightChild(r), visit);	// ±éÀúÓÒ×ÓÊ÷
+	{	// ï¿½ï¿½ï¿½Ç¿ï¿½
+		(*visit)(NodeElem(r));			// ï¿½ï¿½ï¿½Ê¸ï¿½ï¿½ï¿½ï¿½
+		PreOrderAux(LeftChild(r), visit);	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		PreOrderAux(RightChild(r), visit);	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::PreOrder(void (*visit)(const ElemType&)) const
-// ²Ù×÷½á¹û£ºÏÈÐò±éÀú¶þ²æÊ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	PreOrderAux(GetRoot(), visit);
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::InOrderAux(NodePtr r, void (*visit)(const ElemType&)) const
-// ²Ù×÷½á¹û£ºÖÐÐò±éÀúÒÔrÎª¸ùµÄ¶þ²æÊ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rÎªï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	if (!NodeEmpty(r))
-	{	// ¸ù·Ç¿Õ
-		InOrderAux(LeftChild(r), visit);		// ±éÀú×ó×ÓÊ÷
-		(*visit)(NodeElem(r));					// ·ÃÎÊ¸ù½áµã
-		InOrderAux(RightChild(r), visit);		// ±éÀúÓÒ×ÓÊ÷
+	{	// ï¿½ï¿½ï¿½Ç¿ï¿½
+		InOrderAux(LeftChild(r), visit);		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		(*visit)(NodeElem(r));					// ï¿½ï¿½ï¿½Ê¸ï¿½ï¿½ï¿½ï¿½
+		InOrderAux(RightChild(r), visit);		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::InOrder(void (*visit)(const ElemType&)) const
-// ²Ù×÷½á¹û£ºÖÐÐò±éÀú¶þ²æÊ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	InOrderAux(GetRoot(), visit);
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::PostOrderAux(NodePtr r, void (*visit)(const ElemType&)) const
-// ²Ù×÷½á¹û£ººóÐò±éÀúÒÔrÎª¸ùµÄ¶þ²æÊ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rÎªï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	if (!NodeEmpty(r))
-	{	// ¸ù·Ç¿Õ
-		PostOrderAux(LeftChild(r), visit);	// ±éÀú×ó×ÓÊ÷
-		PostOrderAux(RightChild(r), visit);	// ±éÀúÓÒ×ÓÊ÷
-		(*visit)(NodeElem(r));				// ·ÃÎÊ¸ù½áµã
+	{	// ï¿½ï¿½ï¿½Ç¿ï¿½
+		PostOrderAux(LeftChild(r), visit);	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		PostOrderAux(RightChild(r), visit);	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		(*visit)(NodeElem(r));				// ï¿½ï¿½ï¿½Ê¸ï¿½ï¿½ï¿½ï¿½
 	}
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::PostOrder(void (*visit)(const ElemType&)) const
-// ²Ù×÷½á¹û£ººóÐò±éÀú¶þ²æÊ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	PostOrderAux(GetRoot(), visit);
 }
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::LevelOrder(void (*visit)(const ElemType&)) const
-// ²Ù×÷½á¹û£º²ã´Î±éÀú¶þ²æÊ÷
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
-	LinkQueue<NodePtr> q;							// ¶ÓÁÐ
+	LinkQueue<NodePtr> q;							// ï¿½ï¿½ï¿½ï¿½
 	NodePtr cur;
 	
-	// µ±Ç°½áµã
+	// ï¿½ï¿½Ç°ï¿½ï¿½ï¿½
 	NodePtr root = GetRoot();
-	if (!NodeEmpty(root)) q.InQueue(root);		// Èç¹û¸ù·Ç¿Õ£¬ÔòÈë¶Ó£¬ÒÔ±ã´Ó¸ù½áµã¿ªÊ¼½øÐÐ²ã´Î±éÀú
+	if (!NodeEmpty(root)) q.InQueue(root);		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¿Õ£ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½Ô±ï¿½Ó¸ï¿½ï¿½ï¿½ã¿ªÊ¼ï¿½ï¿½ï¿½Ð²ï¿½Î±ï¿½ï¿½ï¿½
 	while (!q.IsEmpty())
-	{	// q·Ç¿Õ,ËµÃ÷»¹ÓÐ½áµãÎ´·ÃÎÊ
-		q.OutQueue(cur);						// ³ö¶Ó½áµãÎªµ±Ç°·ÃÎÊµÄ½áµã
-		(*visit)(NodeElem(cur));				// ·ÃÎÊelems[cur].data
-		if (!NodeEmpty(LeftChild(cur)))			// ×óº¢×Ó·Ç¿Õ
-			q.InQueue(LeftChild(cur));			// ×óº¢×ÓÈë¶Ó
-		if (!NodeEmpty(RightChild(cur)))		// ÓÒº¢×Ó·Ç¿Õ
-			q.InQueue(RightChild(cur));			// ÓÒº¢×ÓÈë¶Ó
+	{	// qï¿½Ç¿ï¿½,Ëµï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½
+		q.OutQueue(cur);						// ï¿½ï¿½ï¿½Ó½ï¿½ï¿½Îªï¿½ï¿½Ç°ï¿½ï¿½ï¿½ÊµÄ½ï¿½ï¿½
+		(*visit)(NodeElem(cur));				// ï¿½ï¿½ï¿½ï¿½elems[cur].data
+		if (!NodeEmpty(LeftChild(cur)))			// ï¿½ï¿½ï¿½Ó·Ç¿ï¿½
+			q.InQueue(LeftChild(cur));			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		if (!NodeEmpty(RightChild(cur)))		// ï¿½Òºï¿½ï¿½Ó·Ç¿ï¿½
+			q.InQueue(RightChild(cur));			// ï¿½Òºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
 
 template<class ElemType, class NodePtr>
 int BinaryTreeBase<ElemType, NodePtr>::HeightAux(NodePtr r) const
-// ²Ù×÷½á¹û£º·µ»ØÒÔrÎª¸ùµÄ¶þ²æÊ÷µÄ¸ß
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rÎªï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½
 {
 	if (NodeEmpty(r))
-	{	// ¿Õ¶þ²æÊ÷¸ßÎª0
+	{	// ï¿½Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0
 		return 0;
 	}
 	else
-	{	// ·Ç¿Õ¶þ²æÊ÷¸ßÎª×óÓÒ×ÓÊ÷µÄ¸ßµÄ×î´óÖµÔÙ¼Ó1
+	{	// ï¿½Ç¿Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ßµï¿½ï¿½ï¿½ï¿½Öµï¿½Ù¼ï¿½1
 		int lHeight, rHeight;
-		lHeight = HeightAux(LeftChild(r));		// ×ó×ÓÊ÷µÄ¸ß
-		rHeight = HeightAux(RightChild(r));	// ÓÒ×ÓÊ÷µÄ¸ß
+		lHeight = HeightAux(LeftChild(r));		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½
+		rHeight = HeightAux(RightChild(r));	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½
 		return 1 + (lHeight > rHeight ? lHeight : rHeight);
-		// ·Ç¿Õ¶þ²æÊ÷¸ßÎª×óÓÒ×ÓÊ÷µÄ¸ßµÄ×î´óÖµÔÙ¼Ó1
+		// ï¿½Ç¿Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ßµï¿½ï¿½ï¿½ï¿½Öµï¿½Ù¼ï¿½1
 	}
 }
 
 template<class ElemType, class NodePtr>
 int BinaryTreeBase<ElemType, NodePtr>::Height() const
-// ²Ù×÷½á¹û£º·µ»Ø¶þ²æÊ÷µÄ¸ß
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½
 {
 	return HeightAux(GetRoot());
 }
 
 template<class ElemType, class NodePtr>
 int BinaryTreeBase<ElemType, NodePtr>::NodeCountAux(NodePtr r) const
-// ²Ù×÷½á¹û£º·µ»ØÒÔrÎª¸ùµÄ¶þ²æÊ÷µÄ½áµã¸öÊý
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rÎªï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
-	if (NodeEmpty(r)) return 0;	// ¿Õ¶þ²æÊ÷½áµã¸öÊýÎª0
+	if (NodeEmpty(r)) return 0;	// ï¿½Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0
 	else return 1 + NodeCountAux(LeftChild(r)) + NodeCountAux(RightChild(r));
-	// ·Ç¿Õ¶þ²æÊ÷½áµã¸öÎª×óÓÒ×ÓÊ÷µÄ½áµã¸öÊýÖ®ºÍÔÙ¼Ó1
+	// ï¿½Ç¿Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ï¿½Ù¼ï¿½1
 }
 
 template<class ElemType, class NodePtr>
 int BinaryTreeBase<ElemType, NodePtr>::NodeCount() const
-// ²Ù×÷½á¹û£º·µ»Ø¶þ²æÊ÷µÄ½áµã¸öÊý
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	return NodeCountAux(GetRoot());
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::DeleteLeftChild(NodePtr cur)
-// ³õÊ¼Ìõ¼þ£ºcur·Ç¿Õ
-// ²Ù×÷½á¹û£ºÉ¾³ýcur×ó×ÓÊ÷
+// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½curï¿½Ç¿ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½curï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	if (NodeEmpty(cur))
-	{	// curÎª¿Õ
+	{	// curÎªï¿½ï¿½
 		return;
 	}
 	else
-	{	// cur·Ç¿Õ
-		DestroyAux(LeftChild(cur));	// É¾³ýcur×ó×ÓÊ÷
+	{	// curï¿½Ç¿ï¿½
+		DestroyAux(LeftChild(cur));	// É¾ï¿½ï¿½curï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::DeleteRightChild(NodePtr cur)
-// ³õÊ¼Ìõ¼þ£ºcur·Ç¿Õ
-// ²Ù×÷½á¹û£ºÉ¾³ýcurÓÒ×ÓÊ÷
+// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½curï¿½Ç¿ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½curï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	if (NodeEmpty(cur))
-	{	// curÎª¿Õ
+	{	// curÎªï¿½ï¿½
 		return;
 	}
 	else
-	{	// cur·Ç¿Õ
-		DestroyAux(RightChild(cur));	// É¾³ýcurÓÒ×ÓÊ÷
+	{	// curï¿½Ç¿ï¿½
+		DestroyAux(RightChild(cur));	// É¾ï¿½ï¿½curï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
 
 template<class ElemType, class NodePtr>
-void BinaryTreeBase<ElemType, NodePtr>::DestroyAux(NodePtr r)
-// ²Ù×÷½á¹û£ºÏú»ÙÒÔrµÄ¶þ²æÊ÷
+void BinaryTreeBase<ElemType, NodePtr>::DestroyAux(NodePtr& r)
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½rï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 	if (!NodeEmpty(r))
-	{	// r·Ç¿Õ,ÊµÊ©Ïú»Ù
-		DestroyAux(LeftChild(r));		// Ïú»Ù×ó×ÓÊ÷
-		DestroyAux(RightChild(r));		// Ïú»ÙÓÒ×ÓÊ÷
-		ReleaseNode(r);				// ½«rÖÃ¿Õ
+	{	// rï¿½Ç¿ï¿½,ÊµÊ©ï¿½ï¿½ï¿½ï¿½
+		DestroyAux(LeftChild(r));		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		DestroyAux(RightChild(r));		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		ReleaseNode(r);				// ï¿½ï¿½rï¿½Ã¿ï¿½
 	}
 }
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::InsertLeftChild(NodePtr cur, const ElemType& e)
-// ³õÊ¼Ìõ¼þ£ºcurºÍcur×óº¢×Ó·Ç¿Õ
-// ²Ù×÷½á¹û£º²åÈëeÎªcurµÄ×óº¢×Ó£¬Èç¹ûcurµÄ×óº¢×Ó·Ç¿Õ£¬²Ù×÷×÷Ê§°Ü
+// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½curï¿½ï¿½curï¿½ï¿½ï¿½Ó·Ç¿ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½eÎªcurï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½curï¿½ï¿½ï¿½ï¿½ï¿½Ó·Ç¿Õ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
 {
 	if (NodeEmpty(cur))
-	{	// curÎª¿Õ£¬·µ»Ø
+	{	// curÎªï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½
 		return;
 	}
 	else if (!NodeEmpty(LeftChild(cur)))
-		return;//×óº¢×Ó²»Îª¿Õ£¬·µ»Ø
+		return;//ï¿½ï¿½ï¿½Ó²ï¿½Îªï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½
 	else
-	{	// ²åÈëÓÒº¢×Ó
+	{	// ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½
 		NodePtr nodeChild = CreateChildNode(cur, true);
 		if (!NodeEmpty(nodeChild))
-		{	// ´´½¨×óº¢×Ó³É¹¦,ÇÒºÏ·¨
+		{	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³É¹ï¿½,ï¿½ÒºÏ·ï¿½
 			SetElem(nodeChild, e);
 		}
 		return;
@@ -238,20 +239,20 @@ void BinaryTreeBase<ElemType, NodePtr>::InsertLeftChild(NodePtr cur, const ElemT
 
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::InsertRightChild(NodePtr cur, const ElemType& e)
-// ³õÊ¼Ìõ¼þ£ºcurºÍcurÓÒº¢×Ó·Ç¿Õ
-// ²Ù×÷½á¹û£º²åÈëeÎªcurµÄÓÒº¢×Ó£¬Èç¹ûcurµÄÓÒº¢×Ó·Ç¿Õ£¬²Ù×÷×÷Ê§°Ü
+// ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½curï¿½ï¿½curï¿½Òºï¿½ï¿½Ó·Ç¿ï¿½
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½eÎªcurï¿½ï¿½ï¿½Òºï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½curï¿½ï¿½ï¿½Òºï¿½ï¿½Ó·Ç¿Õ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
 {
 	if (NodeEmpty(cur))
-	{	//  curÎª¿Õ£¬·µ»Ø
+	{	//  curÎªï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½
 		return;
 	}
 	else if(!NodeEmpty(RightChild(cur)))
-		return;//ÓÒº¢×Ó²»Îª¿Õ£¬·µ»Ø
+		return;//ï¿½Òºï¿½ï¿½Ó²ï¿½Îªï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½
 	else
-	{	// ²åÈëÓÒº¢×Ó
+	{	// ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½ï¿½
 		NodePtr nodeChild = CreateChildNode(cur,false);
 		if (!NodeEmpty(nodeChild))
-		{	// ´´½¨ÓÒº¢×Ó³É¹¦,ÇÒºÏ·¨
+		{	// ï¿½ï¿½ï¿½ï¿½ï¿½Òºï¿½ï¿½Ó³É¹ï¿½,ï¿½ÒºÏ·ï¿½
 			SetElem(nodeChild,e);
 		}
 		return;
@@ -263,43 +264,43 @@ NodePtr BinaryTreeBase<ElemType, NodePtr>::CreateBinaryTreeAux(NodePtr pParent,E
 {
 	NodePtr r = NULL;
 	if (preLeft > preRight || inLeft > inRight)
-	{	// ¶þ²æÊ÷ÎÞ½áµã,¿Õ¶þ²æÊ÷
-		r = NULL;									// ¿Õ¶þ²æÊ÷¸ùÎª¿Õ
+	{	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ½ï¿½ï¿½,ï¿½Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½
+		r = NULL;									// ï¿½Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½
 	}
 	else
-	{	// ¶þ²æÊ÷ÓÐ½áµã,·Ç¿Õ¶þ²æÊ÷
-		r = CreateChildNode(pParent,bLeft);// Éú³É¸ù½áµã
-		SetElem(r, pre[preLeft]);//ÉèÖÃ¸ù½ÚµãµÄÖµ
-		int mid = inLeft;							// midÎªpre[preLeft]ÔÚin[]ÖÐµÄÎ»ÖÃ
+	{	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½,ï¿½Ç¿Õ¶ï¿½ï¿½ï¿½ï¿½ï¿½
+		r = CreateChildNode(pParent,bLeft);// ï¿½ï¿½ï¿½É¸ï¿½ï¿½ï¿½ï¿½
+		SetElem(r, pre[preLeft]);//ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½Úµï¿½ï¿½Öµ
+		int mid = inLeft;							// midÎªpre[preLeft]ï¿½ï¿½in[]ï¿½Ðµï¿½Î»ï¿½ï¿½
 		while (in[mid] != pre[preLeft])
-		{	// ²éÕÒpre[preLeft]ÔÚin[]ÖÐµÄÎ»ÖÃ,Ò²¾ÍÊÇÖÐÐòÐòÁÐÖÐ¸ùµÄÎ»ÖÃ
+		{	// ï¿½ï¿½ï¿½ï¿½pre[preLeft]ï¿½ï¿½in[]ï¿½Ðµï¿½Î»ï¿½ï¿½,Ò²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½ï¿½ï¿½Î»ï¿½ï¿½
 			mid++;
 		}
-		CreateBinaryTreeAux(r,  pre, in, preLeft + 1, preLeft + mid - inLeft, inLeft, mid - 1, true);// Éú³É×ó×ÓÊ÷
-		CreateBinaryTreeAux(r,  pre, in, preLeft + mid - inLeft + 1, preRight, mid + 1,inRight,false);	// Éú³ÉÓÒ×ÓÊ÷
+		CreateBinaryTreeAux(r,  pre, in, preLeft + 1, preLeft + mid - inLeft, inLeft, mid - 1, true);// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		CreateBinaryTreeAux(r,  pre, in, preLeft + mid - inLeft + 1, preRight, mid + 1,inRight,false);	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 	return r;
 }
 template<class ElemType, class NodePtr>
-//²Ù×÷½á¹û,ÏÔÊ¾¶þ²æÊ÷¸¨Öúº¯Êý
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void BinaryTreeBase<ElemType, NodePtr>::DisplayBTWithTreeShapeAux(NodePtr r, int level)
 {
 	if (!NodeEmpty(r))
-	{	// ¿ÕÊ÷²»ÏÔÊ½£¬Ö»ÏÔÊ½·Ç¿ÕÊ÷
-		DisplayBTWithTreeShapeAux(RightChild(r), level + 1);//ÏÔÊ¾ÓÒ×ÓÊ÷
-		cout << endl;					//ÏÔÊ¾ÐÂÐÐ	
+	{	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Ö»ï¿½ï¿½Ê½ï¿½Ç¿ï¿½ï¿½ï¿½
+		DisplayBTWithTreeShapeAux(RightChild(r), level + 1);//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		cout << endl;					//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½	
 		for (int temPos = 0; temPos < level - 1; temPos++)
-			cout << " ";				//È·±£ÔÚµÚlevelÁÐÏÔÊ¾½áµã
-		cout << r->data;				//ÏÔÊ¾½áµã
-		DisplayBTWithTreeShapeAux(LeftChild(r), level + 1);//ÏÔÊ¾×ó×ÓÊ÷
+			cout << " ";				//È·ï¿½ï¿½ï¿½Úµï¿½levelï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½
+		cout << r->data;				//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½
+		DisplayBTWithTreeShapeAux(LeftChild(r), level + 1);//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
-//²Ù×÷½á¹û,ÏÔÊ¾¶þ²æÊ÷
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 template<class ElemType, class NodePtr>
 void BinaryTreeBase<ElemType, NodePtr>::DisplayBTWithTreeShape()
 {
 	DisplayBTWithTreeShapeAux(GetRoot(), 1);
-	// Ê÷×´ÏÔÊ¾ÒÔbt.GetRoot()Îª¸ùµÄ¶þ²æÊ÷
+	// ï¿½ï¿½×´ï¿½ï¿½Ê¾ï¿½ï¿½bt.GetRoot()Îªï¿½ï¿½ï¿½Ä¶ï¿½ï¿½ï¿½ï¿½ï¿½
 	cout << endl;
 }
 #endif // !defined(_BINARY_TREE_BASE_H_)

@@ -16,6 +16,7 @@ public:
 #endif
 	int GetRows() const;					// 返回矩阵行数
 	int GetCols() const;					// 返回矩阵列数
+	bool ReSize(int rows,int cols);			//重置矩阵的尺寸
 	bool IsEmpty() const;//返回是否是空矩阵
 	void PrintMatrix(const char* pMatrixName)const;//打印矩阵元素
 	ElemType& operator()(int row, int col);	// 重载函数运算符
@@ -26,6 +27,9 @@ public:
 	Matrix<ElemType> Add(const Matrix<ElemType>& source)const;//矩阵加运算
 	Matrix<ElemType> Transpose() const;//矩阵转置运算
 	Matrix<ElemType> Inverse()const;//求逆矩阵
+	ElemType* operator[](int row);//重载运算符[]
+	Matrix<ElemType>& operator =(const Matrix<ElemType>& source);//重载赋值运算符
+	Matrix(const Matrix<ElemType>& source);//复制构造函数
 };
 template<class ElemType>
 Matrix<ElemType>::Matrix(int rows, int cols)
@@ -45,6 +49,45 @@ template<class ElemType>
 int Matrix<ElemType>::GetCols() const
 {
 	return this->m_pnBounds[1];
+}
+template<class ElemType>
+//操作结果:重置矩阵的尺寸
+bool Matrix<ElemType>::ReSize(int rows, int cols)
+{
+	if (rows < 1 || cols < 1)
+		return false;
+	if (this->m_pElemBase)
+		delete this->m_pElemBase;
+	this->m_pElemBase = new ElemType[rows * cols];
+	this->m_pnBounds[0] = rows;
+	this->m_pnBounds[1] = cols;
+	this->m_pnConstants[0] = cols;
+	return true;
+}
+template<class ElemType>
+//操作结果:重载'='运算符
+Matrix<ElemType>& Matrix<ElemType>::operator =(const Matrix<ElemType>& source)
+{
+	if (this != &source)
+	{
+		int nSrcRows = source.GetRows();
+		int nSrcCols = source.GetCols();
+		if (GetRows() != nSrcRows || GetCols() != nSrcCols)
+		{//如果本矩阵和源矩阵尺寸不一样，调整本矩阵尺寸
+			ReSize(nSrcRows, nSrcCols);
+		}
+		ElemType* pDstBase = this->ElemAddress(0, 0);
+		ElemType* pSrcBase = source.ElemAddress(0, 0);
+		memcpy(pDstBase, pSrcBase, sizeof(ElemType) * nSrcRows * nSrcCols);//拷贝数据
+	}
+	return *this;
+}
+template<class ElemType>
+//复制构造函数
+Matrix<ElemType>::Matrix(const Matrix<ElemType>& source)
+	:Array<ElemType>(2, source.GetRows(), source.GetCols())
+{
+	*this = source;// 由于重载了'='
 }
 template <class ElemType>
 ElemType& Matrix<ElemType>::operator()(int row, int col)
@@ -251,6 +294,12 @@ Matrix<ElemType> Matrix<ElemType>::Transpose() const
 	return matrix;
 }
 template <class ElemType>
+ElemType* Matrix<ElemType>::operator[](int row)
+{
+	return this->m_pElemBase + row * this->m_pnBounds[1];
+}
+
+template <class ElemType>
 //求逆矩阵运算,采用Gauss-Jordan (or reduced row) elimination method
 Matrix<ElemType> Matrix<ElemType>::Inverse()const
 {
@@ -412,5 +461,4 @@ Matrix<ElemType> operator /( Matrix<ElemType>&const first,  Matrix<ElemType>& co
 	Matrix<ElemType> matInverse = second.Inverse();//先求逆矩阵
 	return first.CrossProduct(matInverse);//再求点积
 }
-
 #endif

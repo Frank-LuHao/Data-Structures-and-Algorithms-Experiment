@@ -16,8 +16,8 @@ public:
 	ThreadBinaryTree();
 	~ThreadBinaryTree();
 	virtual ThreadBinTreeNode<ElemType>* Parent(ThreadBinTreeNode<ElemType>* pCur) const; // 返回二叉树中结点cur的双亲
-	virtual ThreadBinTreeNode<ElemType>* LeftChild(ThreadBinTreeNode<ElemType>* pCur) const; // 返回二叉树中结点cur的左孩子，重载
-	virtual ThreadBinTreeNode<ElemType>* RightChild(ThreadBinTreeNode<ElemType>* pCur) const; // 返回二叉树中结点cur的右孩子，重载
+	virtual ThreadBinTreeNode<ElemType>* &LeftChild(ThreadBinTreeNode<ElemType>* pCur) const; // 返回二叉树中结点cur的左孩子，重载
+	virtual ThreadBinTreeNode<ElemType>* &RightChild(ThreadBinTreeNode<ElemType>* pCur) const; // 返回二叉树中结点cur的右孩子，重载
 	virtual void PreOrder(void (*visit)(const ElemType&)) const;	// 二叉树的先序遍历
 	virtual void InOrder(void (*visit)(const ElemType&)) const;		// 二叉树的中序遍历	
 	virtual void PostOrder(void (*visit)(const ElemType&)) const;	// 二叉树的后序遍历	
@@ -65,23 +65,25 @@ void ThreadBinaryTree<ElemType>::LinkParentChild(ThreadBinTreeNode<ElemType>* pP
 }
 template <class ElemType>
 //操作结果, 返回二叉树中结点cur的左孩子
-ThreadBinTreeNode<ElemType>* ThreadBinaryTree<ElemType>::LeftChild(ThreadBinTreeNode<ElemType>* pCur) const
+ThreadBinTreeNode<ElemType>* &ThreadBinaryTree<ElemType>::LeftChild(ThreadBinTreeNode<ElemType>* pCur) const
 {
+	ThreadBinTreeNode<ElemType>* pNull = NULL;
 	if (!pCur)
-		return NULL;
+		return pNull;
 	if (pCur->leftTag == CHILD_PTR)//判断左标记是否为子树
 		return pCur->leftChild;//返回左孩子
-	return NULL;
+	return pNull;
 }
 template <class ElemType>
 //操作结果, 返回二叉树中结点cur的右孩子
-ThreadBinTreeNode<ElemType>* ThreadBinaryTree<ElemType>::RightChild(ThreadBinTreeNode<ElemType>* pCur) const
+ThreadBinTreeNode<ElemType>* &ThreadBinaryTree<ElemType>::RightChild(ThreadBinTreeNode<ElemType>* pCur) const
 {
+	ThreadBinTreeNode<ElemType>* pNull = NULL;
 	if (!pCur)
-		return NULL;
+		return pNull;
 	if (pCur->rightTag == CHILD_PTR)//判断右标记是否为子树
 		return pCur->rightChild;//返回右孩子
-	return NULL;
+	return pNull;
 }
 template <class ElemType>
 //操作结果，先序线索化辅助

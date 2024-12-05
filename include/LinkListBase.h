@@ -2,7 +2,6 @@
 #define  _LINK_LIST_BASE_H_
 #include "ListBase.h"
 #include "node.h"
-
 template <class ElemType, class NodeType>  
 class LinkListBase:public ListBase<ElemType>
 {
@@ -21,7 +20,10 @@ public:
 	virtual LinkListBase& operator = (const LinkListBase<ElemType, NodeType>& source); // 重载赋值运算符
 	virtual void Head();//当前节点指向头节点
 	virtual bool Next(ElemType& e);//当前节点后移,同时获取后继数据
+	virtual bool SetCurElem(const ElemType e);//设置当前节点元素值
+	virtual bool GetCurElem(ElemType& e) const;//获取当前节点元素值
 	virtual bool DeleteCur(ElemType& e);//删除当前节点元素
+	
 protected:
 	virtual bool Link(NodeType* pPreNode,NodeType* pNextNode) =0;//链接两个节点
 	virtual NodeType* FindNode(int position, NodeType*&  pPreNode) const;//根据位置号寻找节点
@@ -127,6 +129,16 @@ bool LinkListBase<ElemType, NodeType>::Next(ElemType &e)
 		return false;//当前节点为空或当前节点的后继为空，都不能继续后移当前节点
 	m_pNodeCur = m_pNodeCur->m_pNext;
 	e = m_pNodeCur->m_TData;
+	return true;
+}
+template <class ElemType, class NodeType>
+bool LinkListBase<ElemType, NodeType>::SetCurElem(const ElemType e)
+{
+	if (m_pNodeCur == m_pNodeHead || !m_pNodeCur)
+	{//当前节点为头节点或当前节点为空
+		return false;
+	}
+	m_pNodeCur->m_TData = e;
 	return true;
 }
 template <class ElemType, class NodeType>
@@ -298,5 +310,16 @@ int LinkListBase<ElemType, NodeType>::AddTail(const ElemType e)
 	m_nNodeCounts++;//节点数目加一
 	return m_nNodeCounts - 1;// 返回新加节点的位置号
 }
-
+template <class ElemType, class NodeType>
+//操作结果：获取当前节点元素值
+bool LinkListBase<ElemType, NodeType>::GetCurElem(ElemType& e) const
+{
+	if (!m_pNodeCur)
+		return false;//当前操作节点为空，返回失败
+	if (m_pNodeCur == m_pNodeHead)
+		return false;//头节点不保存有效数据，返回失败
+	
+	e = m_pNodeCur->m_TData;
+	return true;
+}
 #endif

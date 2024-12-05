@@ -13,7 +13,7 @@ class HufTree:public LkBinaryTreeBase<ElemType,HufTreeNode<ElemType,wtType>>
 {
 public:
     HufTree();						//构造函数
-    HufTree(const HufTree < ElemType, wtType>& source);	//复制构造函数
+    HufTree(const HufTree<ElemType, wtType>& source);	//复制构造函数
     ~HufTree();//析构函数
     bool CreateHufTree(ElemType e[],wtType wt[],int nSize);	//由权重序列构造霍夫曼树
     bool Ecode(const ElemType e, CharString& strCode);	//编码
@@ -22,7 +22,7 @@ public:
     virtual HufTreeNode<ElemType, wtType>* Parent(HufTreeNode<ElemType, wtType>* pCur) const ;// 返回双亲
     HufTree<ElemType, wtType>& operator=(const HufTree < ElemType, wtType>& source);	// 重载赋值运算符
 private:
-    virtual void LinkParentChild(HufTreeNode<ElemType, wtType>* pParent, HufTreeNode<ElemType, wtType>* pChild, bool bLeft);	//链接双亲节点和孩子节点
+    virtual void LinkParentChild(HufTreeNode<ElemType, wtType>* pParent, HufTreeNode<ElemType, wtType>* pChild, bool bLeft);//链接双亲节点和孩子节点
     HufTreeNode<ElemType, wtType>* m_pCurNode;		//当前解码路径节点
     CharString* m_pStrCodeTabel;				//编码（字符串）表
     ElemType* m_pElemTabel;	            //编码元素表，编码时查找该表，获得索引，通过所有在编码表中获得编码字符串
@@ -41,13 +41,20 @@ HufTree<ElemType, wtType>::HufTree()
 template  <class ElemType,class wtType>
 HufTree<ElemType, wtType>::~HufTree()
 {
-    Clear();
+    if (m_pStrCodeTabel)
+        delete[]m_pStrCodeTabel;
+    if (m_pElemTabel)
+        delete[]m_pElemTabel;
+    m_pStrCodeTabel = NULL;
+    m_pElemTabel = NULL;
+    m_pCurNode = NULL;
+    m_nElemCnts = 0;
 }
 
 template  <class ElemType,class wtType>
 HufTree<ElemType, wtType>::HufTree(const HufTree < ElemType, wtType>& source)
 {
-    this->m_pRoot = CopyTreeAux(source.GetRoot());    
+   *this = source;
 }
 
 template  <class ElemType,class wtType>
@@ -118,9 +125,9 @@ bool HufTree<ElemType, wtType>::Ecode(const ElemType e, CharString& strCode)
     return false;
 }
 
-template  <class ElemType,class wtType>
+template <class ElemType,class wtType>
 bool HufTree<ElemType, wtType>::Dcode(SqList <ElemType>& eLst, const CharString& strCode)
-{
+{ //操作结果：解码，从当前译码节点开始译码，译码的元素存储在eLst里
     if (!this->m_pRoot || !m_pCurNode)
        return false;
     const char* pCodeStr = strCode.ToCStr();		//转换为C风格的字符串
@@ -150,13 +157,21 @@ void HufTree<ElemType, wtType>::Clear()
         delete []m_pElemTabel;
     m_pStrCodeTabel = NULL;
     m_pElemTabel = NULL;
+    m_pCurNode = NULL;
     m_nElemCnts = 0;
-    LkBinaryTreeBase<ElemType, HufTreeNode<ElemType, wtType>>::Clear();
+    //销毁树
+    if (this->m_pRoot)
+	{
+		this->DestroyAux(this->m_pRoot);
+		this->m_pRoot = NULL;
+	}
 }
 
 template <class ElemType,class wtType>
 HufTreeNode<ElemType, wtType>* HufTree<ElemType, wtType>::Parent(HufTreeNode<ElemType, wtType>* pCur) const
 {
+    if (!pCur)
+		return NULL;
     return pCur->parent;
 }
 
@@ -169,6 +184,7 @@ void HufTree<ElemType, wtType>::LinkParentChild(HufTreeNode<ElemType, wtType>* p
         pParent->rightChild = pChild;
     if (pChild)
         pChild->parent = pParent;
+    return;
 }
 
 template  <class ElemType,class wtType>
@@ -176,8 +192,17 @@ HufTree<ElemType, wtType>& HufTree<ElemType, wtType>::operator=(const HufTree < 
 {
     if (this == &source)
         return *this;
-    Clear();
-    this->m_pRoot = CopyTreeAux(source.GetRoot());
+    Clear();//首先销毁树
+    this->m_pRoot = CopyTreeAux(source.GetRoot());//复制树
+    m_nElemCnts = source.m_nElemCnts;
+    m_pStrCodeTabel = new CharString[m_nElemCnts];
+    m_pElemTabel = new ElemType[m_nElemCnts];
+    for (int i = 0; i < m_nElemCnts; i++)
+    {
+        m_pStrCodeTabel[i] = source.m_pStrCodeTabel[i];
+        m_pElemTabel[i] = source.m_pElemTabel[i];
+    }
+    m_pCurNode = this->m_pRoot;
     return *this;
 }
 

@@ -15,8 +15,17 @@ struct HufTreeNodePtr
     {
         return ptr->m_Weight > right.ptr->m_Weight;
     }
+    bool operator <= (const HufTreeNodePtr<ElemType, wtType>& right) const
+	{
+		return ptr->m_Weight <= right.ptr->m_Weight;
+	}
+    bool operator >= (const HufTreeNodePtr<ElemType, wtType>& right) const
+    {
+        return ptr->m_Weight >= right.ptr->m_Weight;
+    }
     bool operator == (const HufTreeNodePtr<ElemType, wtType>& right) const
     {
         return ptr->m_Weight == right.ptr->m_Weight;
     }
 };
+#endif

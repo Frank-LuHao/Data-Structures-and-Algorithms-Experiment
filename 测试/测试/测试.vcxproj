@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{8dd88071-b51b-403c-8ed5-c4863cfc286c}</ProjectGuid>
-    <RootNamespace>第三次实验</RootNamespace>
+    <ProjectGuid>{455ad6e1-10d9-44d2-869b-a08d52bb7724}</ProjectGuid>
+    <RootNamespace>测试</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,15 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="第三次实验.cpp" />
+    <ClCompile Include="测试.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\char_string.h" />
-    <ClInclude Include="..\..\include\huffman_compress.h" />
-    <ClInclude Include="..\..\include\huf_tree(homework).h" />
-    <ClInclude Include="..\..\include\huf_tree_node.h" />
-    <ClInclude Include="..\..\include\huf_tree_node_ptr.h" />
-    <ClInclude Include="..\..\include\lk_binary_tree_base.h" />
+    <ClInclude Include="..\..\include\binary_sort_tree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

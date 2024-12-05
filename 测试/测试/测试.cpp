@@ -1,16 +1,20 @@
-﻿// 第三次实验.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
+﻿// 测试.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
 
-#include "../../include/huffman_compress.h"
-#include<iostream>
-using namespace std;
-
+#include <iostream>
+#include "../../include/binary_sort_tree.h"
 int main()
 {
-	HuffmanCompress CompressTask;
-	CompressTask.Compress();
-	CompressTask.Decompress();
-	return 0;
+    BinarySortTree<int, int> T;
+    T.Insert(5);
+    T.Delete(5);
+    cout << T.GetRoot();
+    cout << endl;
+    if (T.Empty())
+		cout << "Empty" << endl;
+	else
+		cout << "Not Empty" << endl;
+    return 0;
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

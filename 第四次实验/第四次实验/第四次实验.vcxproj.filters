@@ -15,27 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="第三次实验.cpp">
+    <ClCompile Include="第四次实验.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\char_string.h">
+    <ClInclude Include="..\..\include\adj_lst_graph.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\huf_tree(homework).h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\huf_tree_node.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\huf_tree_node_ptr.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\lk_binary_tree_base.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\huffman_compress.h">
+    <ClInclude Include="SimpleSchedule.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -20,8 +20,8 @@ public:
 	virtual bool GetItem(int cur, ElemType& e) const ;	// 返回结点cur的元素值
 	virtual bool SetElem(int cur, const ElemType& e) ;	// 将结点cur的值置为e
 	virtual bool Empty() const ;						// 判断二叉树是否为空
-	virtual int LeftChild(int cur) const ;		// 返回二叉树中结点cur的左孩子
-	virtual int RightChild(int cur) const ;	// 返回二叉树中结点cur的右孩子
+	virtual int &LeftChild(int cur) const ;		// 返回二叉树中结点cur的左孩子
+	virtual int &RightChild(int cur) const ;	// 返回二叉树中结点cur的右孩子
 	virtual int Parent(int cur) const ;		// 返回二叉树中结点cur的双亲
 	virtual bool CreateBinaryTree(ElemType pre[], ElemType in[], int n);//根据先序、中序序列创建二叉树
 protected:
@@ -100,17 +100,19 @@ int SqBinaryTree<ElemType>::GetRoot() const
 
 
 template <class ElemType>
-int SqBinaryTree<ElemType>::LeftChild(int cur) const
+int & SqBinaryTree<ElemType>::LeftChild(int cur) const
 // 操作结果：返回二叉树结点cur的左孩子
 {
-	return 2 * cur;				// 2 * cur为左孩子 
+	int leftChild = 2 * cur;// 2 * cur为左孩子 
+	return leftChild;
 }
 
 template <class ElemType>
-int SqBinaryTree<ElemType>::RightChild(int cur) const
+int & SqBinaryTree<ElemType>::RightChild(int cur) const
 // 操作结果：返回二叉树结点cur的右孩子
 {
-	return 2 * cur + 1;			// 2 * cur + 1为右孩子 
+	int rightChild = 2 * cur;// 2 * cur + 1为右孩子
+	return rightChild;			
 }
 
 template <class ElemType>

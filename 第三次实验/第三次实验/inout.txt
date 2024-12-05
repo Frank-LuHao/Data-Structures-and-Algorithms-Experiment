@@ -1,0 +1,2 @@
+压缩程序测试
+test of compression program

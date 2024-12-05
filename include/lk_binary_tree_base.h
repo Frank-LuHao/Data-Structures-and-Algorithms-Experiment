@@ -15,8 +15,8 @@ public:
 	virtual bool GetItem(NodeType* pCur, ElemType& e) const;	// 返回结点cur的元素值
 	virtual bool SetElem(NodeType* pCur, const ElemType& e) ;	// 将结点cur的值置为e
 	virtual bool Empty() const;								// 判断二叉树是否为空
-	virtual NodeType* LeftChild(NodeType* pCur) const;		// 返回二叉树中结点cur的左孩子
-	virtual NodeType* RightChild(NodeType* pCur) const;	// 返回二叉树中结点cur的右孩子
+	virtual NodeType* &LeftChild(NodeType* pCur) const;		// 返回二叉树中结点cur的左孩子
+	virtual NodeType* &RightChild(NodeType* pCur) const;	// 返回二叉树中结点cur的右孩子
 	virtual NodeType* Parent(NodeType* pCur) const = 0;		// 返回二叉树中结点cur的双亲
 	virtual bool CreateBinaryTree(ElemType pre[], ElemType in[], int n);//根据先序、中序序列创建二叉树
 	LkBinaryTreeBase<ElemType, NodeType>& operator=(const LkBinaryTreeBase<ElemType, NodeType>& source);	// 重载赋值运算符
@@ -34,7 +34,7 @@ template <class ElemType,class NodeType>
 //操作结果，无参数构造函数
 LkBinaryTreeBase<ElemType, NodeType>::LkBinaryTreeBase()
 {
-	m_pRoot = new NodeType;
+	m_pRoot = NULL;//无参数构造时，构造的是空树
 }
 template <class ElemType,class NodeType>
 //操作结果，析构对象
@@ -101,13 +101,13 @@ bool LkBinaryTreeBase<ElemType, NodeType>::Empty() const
 }
 template <class ElemType, class NodeType>
 //操作结果，获取pCur节点的左孩子
-NodeType* LkBinaryTreeBase<ElemType, NodeType>::LeftChild(NodeType* pCur) const
+NodeType* &LkBinaryTreeBase<ElemType, NodeType>::LeftChild(NodeType* pCur) const
 {
 	return pCur->leftChild;//返回左孩子
 }
 template <class ElemType, class NodeType>
 //操作结果，获取pCur节点的右孩子
-NodeType* LkBinaryTreeBase<ElemType, NodeType>::RightChild(NodeType* pCur) const
+NodeType* &LkBinaryTreeBase<ElemType, NodeType>::RightChild(NodeType* pCur) const
 {
 	return pCur->rightChild;//返回右孩子
 }

@@ -1,16 +1,11 @@
-﻿// 第三次实验.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
+﻿// 第五次实验.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
 
-#include "../../include/huffman_compress.h"
-#include<iostream>
-using namespace std;
+#include <iostream>
 
 int main()
 {
-	HuffmanCompress CompressTask;
-	CompressTask.Compress();
-	CompressTask.Decompress();
-	return 0;
+    std::cout << "Hello World!\n";
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
