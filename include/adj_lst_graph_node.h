@@ -83,7 +83,7 @@ template <class ElemType, class EdgeWType>
 //操作结果：获取第一条边的顶点
 int AdjListGraphVexNode<ElemType, EdgeWType>::FirstEdge(EdgeWType& weight) const
 {
-	SimpleLkList<AdjLstGraphEdge<EdgeWType>>* pLst = &adjLink;
+	SimpleLkList<AdjLstGraphEdge<EdgeWType>>* pLst = (SimpleLkList<AdjLstGraphEdge<EdgeWType>>*) & adjLink;
 	if (pLst->IsEmpty())
 		return -1;
 	pLst->Head();
@@ -97,7 +97,7 @@ template <class ElemType, class EdgeWType>
 //操作结果：获取前驱为nVexPre的下一条边
 int AdjListGraphVexNode<ElemType, EdgeWType>::NextEdge(int nVexPre, EdgeWType& weight) const
 {
-	SimpleLkList<AdjLstGraphEdge<EdgeWType>>* pLst = &adjLink;
+	SimpleLkList<AdjLstGraphEdge<EdgeWType>>* pLst = (SimpleLkList<AdjLstGraphEdge<EdgeWType>>*) &adjLink;
 	if (pLst->IsEmpty())
 		return -1;
 	AdjLstGraphEdge<EdgeWType> edge;

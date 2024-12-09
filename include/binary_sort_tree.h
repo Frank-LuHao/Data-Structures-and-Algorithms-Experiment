@@ -113,6 +113,8 @@ bool BinarySortTree<ElemType, KeyType>::Delete(const KeyType& key)
 			else if (p->rightChild != NULL) *pp = p->rightChild;//双亲节点孩子指向p的右孩子
 			else *pp = NULL;//p为叶子节点，双亲节点孩子指向空
 		}
+		if (p == this->m_pRoot)
+			this->m_pRoot = NULL;//树根节点赋空
 		delete p;//删除节点p;
 		return true;
 	}

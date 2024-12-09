@@ -2,11 +2,13 @@
 #define _GRAPH_BASE_H_
 #include <stdlib.h>
 #include <memory.h>
+#include<iostream>
 #include "lk_stack.h"
 #include "FindUnionSet.h"
 #include "min_priority_heap_queue.h"
 #include "SqList.h"
 #include "lk_queue.h"
+using namespace std;
 template <class EdgeWType>
 struct GraphEdge {			// 树的边结点类型
 	int vex1, vex2;

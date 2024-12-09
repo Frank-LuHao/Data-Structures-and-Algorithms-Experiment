@@ -4,7 +4,7 @@
 #include "../../include/adj_lst_graph.h"
 #include<iostream>
 #include<fstream>
-#include <string>
+#include<string>
 using namespace std;
 
 // 课程结构
@@ -17,78 +17,106 @@ struct CourseType
 };
 
 // 课程表类
+template <int TermsNum>
 class SimpleSchedule
 {
 public:
-	SimpleSchedule(string in_filename, string out_filename);//构造函数
+	SimpleSchedule();//构造函数
 	~SimpleSchedule();//析构函数
 	void ReadCourseInfo();//读取课程信息
 	void TopSort();//拓扑排序
 	void StoreCourseInfo();//存储课程信息
 
 private:
-	AdjListGraph<CourseType, int>* m_graph;//课程表
-	CourseType* m_courseInfo;//当前课程信息
-	int m_nCourseNum;//课程数量
-	int* m_inDegree;//个节点入度数组
-	ifstream m_inFile;//输入文件
-	ofstream m_outFile;//输出文件
-	SqList<int> **m_scheduleResult;//个学期排课结果
+	AdjListGraph<CourseType, int> *m_pGraph; //课程表
+	CourseType *m_pCourseInfo; //所有课程信息
+	int* m_pInDegree; //各节点入度数组
+	ifstream m_inFile; //输入文件
+	ofstream m_outFile; //输出文件
+	SqList<int> q[TermsNum + 1]; //存储入度为0的课程
+	SqList<int> *m_scheduleResult[TermsNum + 1]; //各学期排课结果,总共8个学期
+	int m_nCourseNumPerTerm[TermsNum + 1]; //每学期课程数量
 };
 
-SimpleSchedule::SimpleSchedule(string in_filename, string out_filename)
+template <int TermsNum>
+SimpleSchedule<TermsNum>::SimpleSchedule()
 {
-	m_courseInfo = NULL;
-	m_nCourseNum = 0;
-	m_inDegree = NULL;
-	m_graph = NULL;
-	m_scheduleResult = NULL;
-	m_inFile.open(in_filename.c_str());
-	if (!m_inFile)
-	{
-		cerr << "打开文件 " << in_filename << " 失败!" << endl;
+	// 指针
+	m_pCourseInfo = NULL;
+	m_pGraph = NULL;
+	m_pInDegree = NULL;
+	for (int i = 0; i < TermsNum + 1; i++)
+		m_scheduleResult[i] = NULL;
+
+	// 文件
+	m_inFile.open("course_inf.csv");
+	if (!m_inFile.is_open()) {
+		cout << "课程信息文件打开失败" << endl;
 		exit(1);
 	}
-	m_outFile.open(out_filename.c_str());
-	if (!m_outFile)
-	{
-		cerr << "打开文件 " << out_filename << " 失败!" << endl;
-		exit(1);
+	m_outFile.open("curriculum_schedule.txt");
+	if (!m_outFile.is_open()) {
+		cout << "输出课程表文件打开失败" << endl;
+		exit(2);
 	}
 };
 
-SimpleSchedule::~SimpleSchedule()
+template <int TermsNum>
+SimpleSchedule<TermsNum>::~SimpleSchedule()
 {
-	if (m_courseInfo != NULL)
-		delete[] m_courseInfo;
-	if (m_inDegree != NULL)
-		delete[] m_inDegree;
-	if (m_graph != NULL)
-		delete m_graph;
-	if (m_scheduleResult != NULL)
+	// 指针
+	if (m_pCourseInfo != NULL)
+		delete[] m_pCourseInfo;
+	if (m_pGraph != NULL)
+		delete m_pGraph;
+	if (m_pInDegree != NULL)
+		delete[] m_pInDegree;
+	for (int i = 0; i < TermsNum + 1; i++)
+		if (m_scheduleResult[i] != NULL)
+			delete m_scheduleResult[i];
+	
+	// 文件
+	if (m_inFile.is_open())
+		m_inFile.close();
+	if (m_outFile.is_open())
+		m_outFile.close();
+};
+
+template <int TermsNum>
+void SimpleSchedule<TermsNum>::ReadCourseInfo()
+{ 
+	//读取每学期开课数
+	int CourseNum = 0;
+	for (int i = 0; i < 8; i++) {
+		m_inFile >> m_nCourseNumPerTerm[i];
+		CourseNum += m_nCourseNumPerTerm[i];
+	}
+	
+	// 初始化指针
+	m_pCourseInfo = new CourseType[CourseNum];
+	m_pInDegree = new int[CourseNum + 1];
+	// 初始化入度数组
+	for (int i = 0; i < CourseNum; i++)
+		m_pInDegree[i] = 0;
+	// 读取课程信息
+	// 读入格式：课程编号 课程名称 学时 开课学期 先修课程
+	for (int i = 0; i < CourseNum; i++)
 	{
-		for (int i = 0; i < 8; i++)
-		{
-			if (m_scheduleResult[i] != NULL)
-				delete m_scheduleResult[i];
+		string preCourseNum;
+		m_inFile >> m_pCourseInfo[i].id >> m_pCourseInfo[i].name >> m_pCourseInfo[i].credit >> m_pCourseInfo[i].term >> preCourseNum;
+		if (m_pCourseInfo[i].term == 0)
+		{ // 未指定开课学期
+			cout << preCourseNum << endl;
+			for (int j = 0; j < preCourseNum.size() && preCourseNum[j] != ','; j++) {
+				m_pInDegree[preCourseNum[j] - '0']++;
+			}
 		}
-		delete[] m_scheduleResult;
 	}
-	m_inFile.close();
-	m_outFile.close();
-};
-
-void SimpleSchedule::ReadCourseInfo()
-{ //读入格式：课程编号 课程名称 学时 开课学期 先修课程
-	m_courseInfo = new CourseType[m_nCourseNum];
-	m_inDegree = new int[m_nCourseNum];
-	for (int i = 0; i < m_nCourseNum; i++)
-	{
-		m_inFile >> m_courseInfo[i].id >> m_courseInfo[i].name >> m_courseInfo[i].credit >> m_courseInfo[i].term;
-		m_inDegree[i] = 0;
-	}
+	for (int i = 1; i <= CourseNum; i++)
+		cout << m_pInDegree[i] << " ";
 	// 构建图
-	m_graph = new AdjListGraph<CourseType, int>(m_courseInfo, m_nCourseNum, DIR_GRAPH);
+	/*
+	m_pGraph = new AdjListGraph<CourseType, int>(m_pCourseInfo, m_nCourseNum, DIR_GRAPH);  // 有向图即可
 	int v1, v2;
 	for (int i = 0; i < m_nCourseNum; i++)
 	{
@@ -97,52 +125,21 @@ void SimpleSchedule::ReadCourseInfo()
 			m_inFile >> v1 >> v2;
 			if (v1 == 0 || v2 == 0)
 				continue;
-			m_graph->InsertEdge(v1 - 1, v2 - 1, 1);
-			m_inDegree[v2 - 1]++;
+			m_pGraph->InsertEdge(v1 - 1, v2 - 1, 1);
+			m_pInDegree[v2 - 1]++;
 		}
 	}
+	*/
 };
 
-void SimpleSchedule::TopSort()
+template <int TermsNum>
+void SimpleSchedule<TermsNum>::TopSort()
 {
-	int* topOrder = new int[m_nCourseNum];
-	int top = -1;
-	for (int i = 0; i < m_nCourseNum; i++)
-	{
-		if (m_inDegree[i] == 0)
-			topOrder[++top] = i;
-	}
-	while (top != -1)
-	{
-		int v = topOrder[top--];
-		m_outFile << m_courseInfo[v].id << " " << m_courseInfo[v].name << " " << m_courseInfo[v].credit << " " << m_courseInfo[v].term << endl;
-		int w;
-		for (w = m_graph->FirstAdjVex(v, w); w != -1; w = m_graph->NextAdjVex(v, w))
-		{
-			if (--m_inDegree[w] == 0)
-				topOrder[++top] = w;
-		}
-	}
-	delete[] topOrder;
 };
 
-void SimpleSchedule::StoreCourseInfo()
+template <int TermsNum>
+void SimpleSchedule<TermsNum>::StoreCourseInfo()
 {
-	m_outFile << m_nCourseNum << endl;
-	for (int i = 0; i < m_nCourseNum; i++)
-	{
-		m_outFile << m_courseInfo[i].id << " " << m_courseInfo[i].name << " " << m_courseInfo[i].credit << " " << m_courseInfo[i].term << endl;
-	}
-	int v1, v2;
-	for (int i = 0; i < m_nCourseNum; i++)
-	{
-		for (int j = 0; j < m_nCourseNum; j++)
-		{
-			m_graph->FirstAdjVex(i, v1);
-			m_graph->NextAdjVex(i, v1, v2);
-			m_outFile << v1 << " " << v2 << endl;
-		}
-	}
 };
 
 #endif

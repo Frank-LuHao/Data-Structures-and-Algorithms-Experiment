@@ -5,22 +5,11 @@
 #include <string>
 #include "SimpleSchedule.h"
 using namespace std;
-
+#define TERMSNUM 8
 int main()
 {
-	// 文件名读入
-    string in_filename, out_filename;
-    cout << "请输入读入文件名（默认 course_inf.txt）:";
-	getline(cin, in_filename);
-    if (in_filename == "")
-		in_filename = "course_inf.txt";
-    cout << "请输入输出文件名（默认 curriculum_schedule.txt）:";
-	getline(cin, out_filename);
-	if (out_filename == "")
-        out_filename = "curriculum_schedule.txt";
-	
-	SimpleSchedule schedule(in_filename, out_filename);
-	//schedule.ReadCourseInfo();  // 读取课程信息
+	SimpleSchedule<TERMSNUM> schedule;
+	schedule.ReadCourseInfo();  // 读取课程信息
 	//schedule.TopSort(); // 拓扑排序
 	//schedule.StoreCourseInfo(); // 存储课程信息
 
