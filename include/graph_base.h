@@ -2,7 +2,7 @@
 #define _GRAPH_BASE_H_
 #include <stdlib.h>
 #include <memory.h>
-#include<iostream>
+#include <iostream>
 #include "lk_stack.h"
 #include "FindUnionSet.h"
 #include "min_priority_heap_queue.h"
@@ -33,20 +33,19 @@ enum GRAPH_TYPE {//定义图的种类
 	UNDIR_NETWORK,//无向网
 	DIR_NETWORK,//有向网
 };
-template <class ElemType,class NodeType,class EdgeWType>
+template <class ElemType, class NodeType, class EdgeWType>
 class GraphBase
 {
-
 public:
-	GraphBase(ElemType e[],int nVexNum, GRAPH_TYPE tGraph);
+	GraphBase(ElemType e[], int nVexNum, GRAPH_TYPE tGraph);
 	~GraphBase();
 	virtual int FirstAdjVex(int v, EdgeWType& weight) const = 0;			// 返回顶点v的第一个邻接点，并获得该边的权重
-	virtual int NextAdjVex(int v1, int v2, EdgeWType &weight) const = 0;	// 返回顶点v1的相对于v2的下一个邻接点，并获得该边权重	 
-	virtual void InsertEdge(int v1, int v2,EdgeWType weight) =0;			// 插入顶点为v1和v2,权为weight的边			 
-	virtual void DeleteEdge(int v1, int v2) =0;			// 删除顶点为v1和v2的边		
+	virtual int NextAdjVex(int v1, int v2, EdgeWType& weight) const = 0;	// 返回顶点v1的相对于v2的下一个邻接点，并获得该边权重	 
+	virtual void InsertEdge(int v1, int v2, EdgeWType weight) = 0;			// 插入顶点为v1和v2,权为weight的边			 
+	virtual void DeleteEdge(int v1, int v2) = 0;			// 删除顶点为v1和v2的边		
 	virtual EdgeWType InfniteWeight();				// 边的无穷大权值
 	bool GetTag(int v) const;							// 返回顶点v的标志		 
-	void SetTag(int v, bool val) ;						// 设置顶点v的标志为val	
+	void SetTag(int v, bool val);						// 设置顶点v的标志为val	
 	int GetVexNum() const;								// 返回顶点个数		
 	int GetEdgeNum() const;								// 返回边数个数			 
 	void DFSTraverse(void (*visit)(const ElemType& e)) const;	// 对图进行深度优先遍历
@@ -66,11 +65,11 @@ protected:
 	// 辅助函数模板:
 	void DFSAux(int v, void (*visit)(const ElemType& e)) const;		// 从顶点v出发进行深度优先搜索图
 	void BFSAux(int v, void (*visit)(const ElemType&)) const;		// 从第顶点v出发进行广度优先搜索图
-	virtual void GetNodeElem(const NodeType& node,ElemType &e) const =0;//根据节点类型获取原子数据
-	virtual void SetNodeElem(NodeType& node,const  ElemType& e)  = 0;	//把原子数据存入到节点类型数据中
+	virtual void GetNodeElem(const NodeType& node, ElemType& e) const = 0;//根据节点类型获取原子数据
+	virtual void SetNodeElem(NodeType& node, const  ElemType& e) = 0;	//把原子数据存入到节点类型数据中
 	void ClearTag();//清空顶点访问标记
 	void ReSize(int nVexNum);//重新分配存储空间
-	void StatInDegree(int inDegree[]) const;							//统计顶点入度
+	void StatInDegree(int inDegree[]) const;					//统计顶点入度
 	bool* m_pbVistedTabel;//节点访问标志表
 	NodeType* m_pNodeTabel;//节点表
 	int m_nVexNum;//节点数目
@@ -80,12 +79,12 @@ protected:
 };
 template <class ElemType, class NodeType, class EdgeWType>
 //操作结果：由原子类型数据序列构造图
-GraphBase<ElemType,NodeType, EdgeWType>::GraphBase(ElemType e[],int nVexNum, GRAPH_TYPE tGraph)
+GraphBase<ElemType, NodeType, EdgeWType>::GraphBase(ElemType e[], int nVexNum, GRAPH_TYPE tGraph)
 {
 	m_pNodeTabel = new NodeType[nVexNum];		//创建顶点数组
 	m_pbVistedTabel = new bool[nVexNum];		//创建访问标志数组
 	m_pMstEdge = NULL;							//最小生成树初始化为空
-	for (int i = 0; i < nVexNum; i++)				
+	for (int i = 0; i < nVexNum; i++)
 		SetElem(i, e[i]);						//拷贝节点原子数据
 	memset(m_pbVistedTabel, 0, sizeof(bool) * nVexNum);	//清空访问标志
 	m_nVexNum = nVexNum;						//赋值顶点数
@@ -109,7 +108,7 @@ GraphBase<ElemType, NodeType, EdgeWType>::~GraphBase()
 	}
 	if (m_pMstEdge)
 	{
-		delete []m_pMstEdge;
+		delete[]m_pMstEdge;
 		m_pMstEdge = NULL;
 
 	}
@@ -155,14 +154,14 @@ int GraphBase<ElemType, NodeType, EdgeWType>::InsertEdges(const GraphEdge<EdgeWT
 		InsertEdge(edge[i].vex1, edge[i].vex2, edge[i].weight);
 	return m_nEdgeNum;
 }
-	
+
 template <class ElemType, class NodeType, class EdgeWType>
 //操作结果： 用e返回顶点v的元素值
 bool GraphBase<ElemType, NodeType, EdgeWType>::GetElem(int v, ElemType& e) const
 {
 	if (v < 0 || v >= m_nVexNum || !m_pNodeTabel)
 		return false;
-	GetNodeElem(m_pNodeTabel[v],e);
+	GetNodeElem(m_pNodeTabel[v], e);
 	return true;
 }
 template <class ElemType, class NodeType, class EdgeWType>
@@ -192,7 +191,7 @@ void GraphBase<ElemType, NodeType, EdgeWType>::DFSAux(int v, void (*visit)(const
 	GetElem(v, e);								// 取顶点v的数据元素
 	(*visit)(e);								// 访问顶点v的数据元素
 	EdgeWType weight;							// 边的权值临时变量
-	for (int w = FirstAdjVex(v,weight); w != -1; w = NextAdjVex(v, w, weight))
+	for (int w = FirstAdjVex(v, weight); w != -1; w = NextAdjVex(v, w, weight))
 	{	// 对v的尚未访问过的邻接顶点w递归调用DFSAux
 		if (!GetTag(w))	DFSAux(w, visit);
 	}
@@ -204,7 +203,7 @@ void GraphBase<ElemType, NodeType, EdgeWType>::DFSTraverse(void (*visit)(const E
 {
 	int v;
 	ClearTag();//清空顶点访问标记
-	
+
 	for (v = 0; v < m_nVexNum; v++)
 	{	// 对尚未访问的顶点按DFS进行深度优先搜索
 		if (!GetTag(v))	DFSAux(v, visit);
@@ -222,7 +221,7 @@ void GraphBase<ElemType, NodeType, EdgeWType>::BFSAux(int v, void (*visit)(const
 	(*visit)(e);							// 访问顶点v的数据元素
 	LinkQueue<int> q;						// 定义队列
 	q.InQueue(v);							// v入队
-	EdgeWType weight ;
+	EdgeWType weight;
 	while (!q.IsEmpty())
 	{	// 队列q非空, 进行循环
 		int u, w;							// 临时顶点
@@ -275,7 +274,7 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::GetTag(int v) const
 		cout << "v不合法!" << endl;					// 提示信息
 		exit(12);									// 退出程序
 	}
-	
+
 	return m_pbVistedTabel[v];// 返回顶点v的标志
 }
 
@@ -289,11 +288,11 @@ void GraphBase<ElemType, NodeType, EdgeWType>::SetTag(int v, bool val)
 		exit(13);									// 退出程序
 	}
 
-	m_pbVistedTabel[v]=val;									// 设置顶点v的标志为val
+	m_pbVistedTabel[v] = val;									// 设置顶点v的标志为val
 }
 template <class ElemType, class NodeType, class EdgeWType>
 //操作结果:用Prim算法生成最小生成树
-bool GraphBase<ElemType, NodeType, EdgeWType>::Prim() 
+bool GraphBase<ElemType, NodeType, EdgeWType>::Prim()
 {
 	if (m_nVexNum <= 0 || !m_pNodeTabel || m_nEdgeNum <= 0 || m_type != UNDIR_NETWORK)
 		return false;//不存在顶点或边，以及不是无向网，返回失败
@@ -301,29 +300,29 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::Prim()
 		int  adjVex;		// 最小代价边依附的顶点编号(<数组下标,adjVex>组成的边,其中adjVex已在Vnew中)
 		EdgeWType  lowCost;	// 最小代价
 	}*D = new Dist[m_nVexNum];//D为Vnew的候选顶点集合，如果顶点lowCost为无穷大，则该顶点为非候选顶点
-	
+
 	ClearTag();//清空顶点访问标记
 	if (m_pMstEdge)
 		delete[]m_pMstEdge;//曾经存在最小生成树边，删除树边
 	m_pMstEdge = new GraphEdge<EdgeWType>[m_nVexNum];
 	EdgeWType minCost;	//最小代价临时变量
-	int u,w, i, j, count = 0;
+	int u, w, i, j, count = 0;
 	EdgeWType InfniteW = InfniteWeight();//获取边权值的无穷大值
 	for (i = 0; i < m_nVexNum; ++i) {
-		
+
 		D[i].lowCost = InfniteW;//初始化时所有最小代价都赋值为无穷大
 	}
 	// 初始化Vnew集合
-	u = 0; 
-	SetTag(u,true) ;  	
+	u = 0;
+	SetTag(u, true);
 	EdgeWType weight;
-	for (i = 1; i < m_nVexNum; ++i) 
+	for (i = 1; i < m_nVexNum; ++i)
 	{	// 选中一个点u入Vnew集合后,进入迭代过程
-		for (w = FirstAdjVex(u, weight); w>=0; w=NextAdjVex(u, w, weight))  // 更新和u关联的（V-Vnew）集合邻接点的权值
+		for (w = FirstAdjVex(u, weight); w >= 0; w = NextAdjVex(u, w, weight))  // 更新和u关联的（V-Vnew）集合邻接点的权值
 			if (!GetTag(w) && D[w].lowCost > weight)
 			{//w在(V-Vnew)集合，且边(w,D[W].AdjVex)权>边(u,w)权
-					D[w].lowCost = weight;		// 更新lowcost
-					D[w].adjVex = u; 			// 更新adjVex 
+				D[w].lowCost = weight;		// 更新lowcost
+				D[w].adjVex = u; 			// 更新adjVex 
 			}
 		minCost = InfniteW;
 		for (j = 0; j < m_nVexNum; ++j)			// 在候选顶点集合中找lowCost最小顶点u
@@ -355,15 +354,15 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::Kruskal()
 
 	int count = 0;
 	GraphEdge<EdgeWType> e;
-	
+
 	FindUnionSet S(m_nVexNum);    		// 并查集S
 	MinPriorityHeapQueue <GraphEdge<EdgeWType>> Q; 		// 优先级队列Q
-	int i,w;
+	int i, w;
 	EdgeWType weight;
-	for (int i = 0; i < m_nVexNum; ++i) 
+	for (int i = 0; i < m_nVexNum; ++i)
 	{	// 边入优先级队列
-		for (w = FirstAdjVex(i, weight); w >= 0;w= NextAdjVex(i, w, weight))  // 更新u关联的顶点的D值
-			if (i < w) 
+		for (w = FirstAdjVex(i, weight); w >= 0; w = NextAdjVex(i, w, weight))  // 更新u关联的顶点的D值
+			if (i < w)
 			{			// 防止重复入队
 				e.vex1 = i;
 				e.vex2 = w;
@@ -371,10 +370,10 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::Kruskal()
 				Q.InQueue(e); 		// 边e入队
 			}
 	}
-	while (count < m_nVexNum - 1) 
+	while (count < m_nVexNum - 1)
 	{	// 选出m_nVexNum-1条边
-		 if(!Q.OutQueue(e)) break;		// 从优先级队列出队一条边
-		if (!S.IsSameTree(e.vex1,e.vex2)) 
+		if (!Q.OutQueue(e)) break;		// 从优先级队列出队一条边
+		if (!S.IsSameTree(e.vex1, e.vex2))
 		{	// 边上的两个顶点不属于同一连通分量
 			S.Union(e.vex1, e.vex2); 		// 合并e.vex1, e.vex2所属子集（连通分量）
 			m_pMstEdge[count++] = e;		// 保存最小生成树上的一条边
@@ -410,27 +409,27 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::TopSort(SqList<int>& lstSortedVex
 {
 	if (m_type == UNDIR_NETWORK || m_type == UNDIR_GRAPH)
 		return false;//有向图才能进行拓扑排序
-	if (m_nVexNum <= 0 || !m_pNodeTabel || m_nEdgeNum <= 0 )
+	if (m_nVexNum <= 0 || !m_pNodeTabel || m_nEdgeNum <= 0)
 		return false;//不存在顶点或边，返回失败
-	LinkStack <int> topSortS;			// 用于拓扑排序存储入度为0的顶点栈
-	
-	int i, curNode, count = 0,w;
+	LinkQueue <int> topSortQ;			// 用于拓扑排序存储入度为0的顶点队列
+
+	int i, curNode, count = 0, w;
 	EdgeWType weight;					//权值临时变量
-	int *inDegree = new int[m_nVexNum];	//入度数组
+	int* inDegree = new int[m_nVexNum];	//入度数组
 	StatInDegree(inDegree);				//统计顶点入度
 	for (i = 0; i < m_nVexNum; i++) 	// 入度为0的顶点入栈
-		if (inDegree[i] == 0) topSortS.Push(i);
-	while (!topSortS.IsEmpty())
+		if (inDegree[i] == 0) topSortQ.InQueue(i);
+	while (!topSortQ.IsEmpty())
 	{
-		if (!topSortS.Pop(curNode))		// 出栈一个为0的顶点，失败时退出循环
+		if (!topSortQ.OutQueue(curNode))		// 出栈一个为0的顶点，失败时退出循环
 			break;
 		lstSortedVex.AddTail(curNode);	//顶点序号输入到线性表中
 		count++;				// 计数器+1
 		for (w = FirstAdjVex(curNode, weight); w >= 0; w = NextAdjVex(curNode, w, weight))
 			if (--inDegree[w] == 0) 	// 邻接点入度减1
-				topSortS.Push(w); 			// 入度为0的顶点入栈
+				topSortQ.InQueue(w); 			// 入度为0的顶点入栈
 	}
-	delete []inDegree;
+	delete[]inDegree;
 	if (count == m_nVexNum)
 		return true; 			// 输出全部顶点，拓扑排序成功
 	return false; 			// 该有向图有环，拓扑排序失败
@@ -441,8 +440,8 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::CriticalPath(SqList<GraphEdge<Edg
 //参数：lstCritalPathEdge - 输出关键路径的网边
 //返回：操作是否成功
 {
-	if (m_type != DIR_NETWORK )		return false;//有向网才能求关键路径
-	if (m_nVexNum <= 0 || !m_pNodeTabel || m_nEdgeNum <= 0 )	return false;//不存在顶点或边，返回失败
+	if (m_type != DIR_NETWORK)		return false;//有向网才能求关键路径
+	if (m_nVexNum <= 0 || !m_pNodeTabel || m_nEdgeNum <= 0)	return false;//不存在顶点或边，返回失败
 	int* inDegree = new int[m_nVexNum];	// 顶点入度数组
 	StatInDegree(inDegree);				//统计顶点入度
 	int* ve = new int[m_nVexNum];		// 事件最早发生时刻数组
@@ -498,7 +497,7 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::CriticalPath(SqList<GraphEdge<Edg
 	while (!reverseS.IsEmpty())
 	{	// reverseS非空
 		reverseS.Pop(u);						// 出栈
-		for (v = FirstAdjVex(u,weight); v != -1; v = NextAdjVex(u, v,weight))
+		for (v = FirstAdjVex(u, weight); v != -1; v = NextAdjVex(u, v, weight))
 		{	// v为u的一个邻接点
 			if (vl[v] - weight < vl[u])
 			{	// 修改vl[u]
@@ -509,7 +508,7 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::CriticalPath(SqList<GraphEdge<Edg
 	GraphEdge<EdgeWType> edge;			//边临时变量
 	for (u = 0; u < m_nVexNum; u++)
 	{	// 求ee, el和关键路径
-		for (v = FirstAdjVex(u, weight); v != -1; v =NextAdjVex(u, v, weight))
+		for (v = FirstAdjVex(u, weight); v != -1; v = NextAdjVex(u, v, weight))
 		{	// v为u的一个邻接点
 			ee = ve[u]; el = vl[v] - weight;
 			if (ee == el)
@@ -535,7 +534,7 @@ template <class ElemType, class NodeType, class EdgeWType>
 //		 pre[] -记录前驱的数组
 //		 nBufSize - D数组和pre数组的长度
 //返回:  操作是否成功
-bool GraphBase<ElemType, NodeType, EdgeWType>::Dijkstra(int start, EdgeWType D[],int pre[],int nBufSize) 
+bool GraphBase<ElemType, NodeType, EdgeWType>::Dijkstra(int start, EdgeWType D[], int pre[], int nBufSize)
 {
 	if (start < 0 || start > m_nVexNum - 1)	//源点下标越界
 		return false;
@@ -544,11 +543,11 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::Dijkstra(int start, EdgeWType D[]
 	if (m_type != DIR_NETWORK)
 		return false;						//只有有向网才能求最短路径
 	ClearTag();//清空顶点访问标志
-	EdgeWType min;   
+	EdgeWType min;
 	int i, j, k, w;
 	EdgeWType weight;
 	EdgeWType InfniteW = InfniteWeight();//获取边权值的无穷大值
-	for (i = 0; i < m_nVexNum; ++i) 
+	for (i = 0; i < m_nVexNum; ++i)
 	{	// 初始化
 		D[i] = InfniteW;  pre[i] = -1;
 	}
@@ -556,19 +555,19 @@ bool GraphBase<ElemType, NodeType, EdgeWType>::Dijkstra(int start, EdgeWType D[]
 	pre[start] = start;	// start到自身的路径长度置0
 	min = D[start];  k = start;
 
-	for (i = 1; i < m_nVexNum; ++i) 
+	for (i = 1; i < m_nVexNum; ++i)
 	{
 		SetTag(k, true);//设置顶点k的访问标志
 		// 刷新start到k的邻接点的最短路径长度
 		for (w = FirstAdjVex(k, weight); w >= 0; w = NextAdjVex(k, w, weight))
-			if (!GetTag(w) && D[w] > min + weight) 
+			if (!GetTag(w) && D[w] > min + weight)
 			{//顶点w还没有访问，且start到w的边距大于min+weight
 				D[w] = min + weight;
 				pre[w] = k;
 			}
 		min = InfniteW; k = start;
 		for (j = 0; j < m_nVexNum; ++j) // 重新找当前路径长度最短且未被访问过的顶点k
-			if (!GetTag(j) && D[j] < min) 
+			if (!GetTag(j) && D[j] < min)
 			{
 				k = j;
 				min = D[k];

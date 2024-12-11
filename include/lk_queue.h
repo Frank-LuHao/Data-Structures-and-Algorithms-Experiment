@@ -9,10 +9,12 @@ public:
 	LinkQueue();//构造函数
 	LinkQueue(const LinkQueue<ElemType>& source);//拷贝构造函数
 	~LinkQueue();//析构函数
+	//重载父类方法
 	int Length() const;//获取链式队列中元素个数
 	bool IsEmpty() const;//判断链式队列是否为空
 	void Clear();//清空链式队列
 	void Traverse(bool (*visit)(const ElemType& e))const;//遍历链式队列
+	//个性化方法
 	bool OutQueue(ElemType& e);	// 出队操作
 	bool OutQueue();		// 出队操作
 	bool GetHead(ElemType& e) const;	// 取队头操作
@@ -77,7 +79,7 @@ bool LinkQueue<ElemType>::GetHead(ElemType& e) const
 {
 	if (this->IsEmpty())
 		return false;//保护性检查，空队列时返回失败
-	return this->GetElem(0,e);//获取队头（首元结点）的数据
+	return this->GetElem(0, e);//获取队头（首元结点）的数据
 }
 template <class ElemType>
 bool LinkQueue<ElemType>::InQueue(const ElemType& e)

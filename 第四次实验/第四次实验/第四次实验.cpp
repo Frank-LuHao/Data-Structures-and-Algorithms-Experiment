@@ -9,12 +9,8 @@ using namespace std;
 int main()
 {
 	SimpleSchedule<TERMSNUM> schedule;
-	schedule.ReadCourseInfo();  // 读取课程信息
-	//schedule.TopSort(); // 拓扑排序
-	//schedule.StoreCourseInfo(); // 存储课程信息
-
+	schedule.Run();  // 读取课程信息
 	return 0;
-
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
