@@ -6,6 +6,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<chrono>
 using namespace std;
 // 排课结果
 struct Time
@@ -79,6 +80,7 @@ SimpleSchedule<TermsNum>::SimpleSchedule()
 	// 指针
 	m_pCourseInfo = NULL;
 	m_pGraph = NULL;
+	m_pEdge = NULL;
 	for (int i = 0; i < TermsNum; i++)
 		m_scheduleResult[i] = NULL;
 
@@ -103,6 +105,8 @@ SimpleSchedule<TermsNum>::~SimpleSchedule()
 		delete[] m_pCourseInfo;
 	if (m_pGraph != NULL)
 		delete m_pGraph;
+	if (m_pEdge != NULL)
+		delete m_pEdge;
 	for (int i = 0; i < TermsNum; i++)
 		if (m_scheduleResult[i] != NULL)
 			delete m_scheduleResult[i];
@@ -214,6 +218,7 @@ void SimpleSchedule<TermsNum>::GenerateSchedule()
 	
 	// 分别对个学期进行排课
 	// 策略：每天上课学时尽量均匀，考虑到周五一般活动较多，尽量少排课，课程课时数过多则进行合理拆分且拆分后的课程尽量不在相邻两天上, 所有课程上下午尽量分布均匀
+	
 	// step1: 课时拆分 4 = 2 + 2, 5 = 3 + 2, 6 = 3 + 3
 	SqList<CourseType> *ScheduleDetails = new SqList<CourseType>[TermsNum]; // 最后排课结果详细信息
 	for (int i = 0; i < TermsNum; i++)
@@ -222,7 +227,6 @@ void SimpleSchedule<TermsNum>::GenerateSchedule()
 		int tmp;
 		CourseType tmpCourse;
 		// 首先将初始课程加入详细信息，对大课进行第一次拆分
-		//cout << "第一次拆分" << endl;
 		for (int j = 0; j < len; j++)
 		{ // 对每门课遍历
 			m_scheduleResult[i]->GetElem(j, tmp);
@@ -246,7 +250,6 @@ void SimpleSchedule<TermsNum>::GenerateSchedule()
 		}
 	}
 	
-
 	// step2: 课程排课
 	// 策略：课程尽量排在星期靠前的时间段，且尽量保证每天都有课
 	SqList<CourseType>* FinalSchedule = new SqList<CourseType>[TermsNum]; // 存储最终排课结果
@@ -541,9 +544,20 @@ void SimpleSchedule<TermsNum>::GenerateSchedule()
 template <int TermsNum>
 void SimpleSchedule<TermsNum>::Run()
 {
+	cout << "正在排课中...\n";
+
+	std::chrono::milliseconds duration; // 声明为毫秒类型的持续时间
+	auto start = std::chrono::high_resolution_clock::now(); // 计时开始
+	
 	ReadCourseInfo(); // 读取课程信息
 	TopSort(); // 拓扑排序
 	GenerateSchedule();  // 生成课程表
+
+	auto end = std::chrono::high_resolution_clock::now(); // 计时结束
+	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); // 计算时间差并转换成毫秒
+	
+	cout << "排课完成！\n";
+	std::cout << "程序执行时间: " << duration.count() << " 毫秒" << std::endl;
 };
 
 template <int TermsNum>
@@ -553,7 +567,6 @@ int SimpleSchedule<TermsNum>::check(int j, int k, SqList<CourseType>& List)
 	{
 		CourseType tmpCourse;
 		List.GetElem(m, tmpCourse);
-		//cout << tmpCourse.id << " " << tmpCourse.time.weekday << " " << tmpCourse.time.block << endl;
 		if (tmpCourse.time.weekday == k + 1 && tmpCourse.time.block == j)
 		{
 			return tmpCourse.id;
