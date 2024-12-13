@@ -7,14 +7,37 @@
 #include<fstream>
 #include<string>
 using namespace std;
-
+// 排课结果
+struct Time
+{
+	int weekday; // 星期几 1~5
+	int block; // 第几节课 0~3
+	// 重载赋值运算符
+	Time& operator= (const Time& t)
+	{
+		weekday = t.weekday;
+		block = t.block;
+		return *this;
+	}
+};
 // 课程结构
 struct CourseType
 {
-	string id; // 课程编号
+	int id; // 课程编号
 	string name; // 课程名称
 	int credit; // 学时
 	int term; // 开课学期(0~8, 0代表没有指定开课学期)
+	Time time; // 上课时间
+	// 重载赋值运算符
+	CourseType& operator= (const CourseType& c)
+	{
+		id = c.id;
+		name =  c.name;
+		credit = c.credit;
+		term = c.term;
+		time = c.time;
+		return *this;
+	}
 };
 
 // 课程表类
@@ -31,6 +54,8 @@ private:
 	void ReadCourseInfo();//读取课程信息
 	void TopSort();//拓扑排序
 	void GenerateSchedule();//存储课程信息
+	int check(int j, int k, SqList<CourseType>& List); // 检查是否有课
+	
 
 	// 私有数据
 	ifstream m_inFile; //输入文件
@@ -44,8 +69,8 @@ private:
 	int m_nEdgeNum; //边数量
 
 	SqList<int> m_qTopSortResult; //拓扑排序结果
-	int m_nCourseNumPerTerm[TermsNum + 1]; //每学期课程数量
-	SqList<int>* m_scheduleResult[TermsNum + 1]; //各学期排课结果,总共8个学期
+	int m_nCourseNumPerTerm[TermsNum]; //每学期课程数量
+	SqList<int>* m_scheduleResult[TermsNum]; //各学期排课结果,总共8个学期
 };
 
 template <int TermsNum>
@@ -54,7 +79,7 @@ SimpleSchedule<TermsNum>::SimpleSchedule()
 	// 指针
 	m_pCourseInfo = NULL;
 	m_pGraph = NULL;
-	for (int i = 0; i < TermsNum + 1; i++)
+	for (int i = 0; i < TermsNum; i++)
 		m_scheduleResult[i] = NULL;
 
 	// 文件
@@ -78,7 +103,7 @@ SimpleSchedule<TermsNum>::~SimpleSchedule()
 		delete[] m_pCourseInfo;
 	if (m_pGraph != NULL)
 		delete m_pGraph;
-	for (int i = 0; i < TermsNum + 1; i++)
+	for (int i = 0; i < TermsNum; i++)
 		if (m_scheduleResult[i] != NULL)
 			delete m_scheduleResult[i];
 	
@@ -150,14 +175,6 @@ template <int TermsNum>
 void SimpleSchedule<TermsNum>::TopSort()
 {
 	m_pGraph->TopSort(m_qTopSortResult);
-	// 显示结果
-	cout << "拓扑排序结果: ";
-	for (int i = 0; i < m_qTopSortResult.Length(); i++) {
-		int tmp;
-		m_qTopSortResult.GetElem(i, tmp);
-		cout << tmp+1 << " ";
-	}
-	cout << endl;
 };
 
 template <int TermsNum>
@@ -195,33 +212,330 @@ void SimpleSchedule<TermsNum>::GenerateSchedule()
 		}
 	}
 	
-	for (int i = 0; i < TermsNum; i++) {
-		cout << "第" << i+1 << "学期课程：" << endl;
-		for (int j = 0; j < m_scheduleResult[i]->Length(); j++) {
-			int tmp;
+	// 分别对个学期进行排课
+	// 策略：每天上课学时尽量均匀，考虑到周五一般活动较多，尽量少排课，课程课时数过多则进行合理拆分且拆分后的课程尽量不在相邻两天上, 所有课程上下午尽量分布均匀
+	// step1: 课时拆分 4 = 2 + 2, 5 = 3 + 2, 6 = 3 + 3
+	SqList<CourseType> *ScheduleDetails = new SqList<CourseType>[TermsNum]; // 最后排课结果详细信息
+	for (int i = 0; i < TermsNum; i++)
+	{ //对每学期遍历
+		int len = m_scheduleResult[i]->Length();
+		int tmp;
+		CourseType tmpCourse;
+		// 首先将初始课程加入详细信息，对大课进行第一次拆分
+		//cout << "第一次拆分" << endl;
+		for (int j = 0; j < len; j++)
+		{ // 对每门课遍历
 			m_scheduleResult[i]->GetElem(j, tmp);
-			cout << m_pCourseInfo[tmp].id << " " << m_pCourseInfo[tmp].name << " " << m_pCourseInfo[tmp].credit << " " << m_pCourseInfo[tmp].term << endl;
+			tmpCourse = m_pCourseInfo[tmp];
+			if (m_pCourseInfo[tmp].credit == 4 || m_pCourseInfo[tmp].credit == 5 || m_pCourseInfo[tmp].credit == 6)
+			{ // 课时拆分
+				tmpCourse.credit = tmpCourse.credit%2 == 0 ? tmpCourse.credit/2 : tmpCourse.credit/2 + 1;
+			}
+			ScheduleDetails[i].AddTail(tmpCourse);
+		}
+		// 然后将大课的第二部分加入详细信息
+		for (int j = 0; j < len; j++)
+		{ //对每门课遍历
+			m_scheduleResult[i]->GetElem(j, tmp);
+			tmpCourse = m_pCourseInfo[tmp];
+			if (m_pCourseInfo[tmp].credit == 4 || m_pCourseInfo[tmp].credit == 5 || m_pCourseInfo[tmp].credit == 6)
+			{ // 课时拆分
+				tmpCourse.credit = tmpCourse.credit / 2;
+				ScheduleDetails[i].AddTail(tmpCourse); //第二次只对大课进行添加
+			}
 		}
 	}
-	// 分别对个学期进行排课
-	// 策略：
+	
 
+	// step2: 课程排课
+	// 策略：课程尽量排在星期靠前的时间段，且尽量保证每天都有课
+	SqList<CourseType>* FinalSchedule = new SqList<CourseType>[TermsNum]; // 存储最终排课结果
+	for (int i = 0; i < TermsNum; i++)
+	{ //对每学期遍历
+
+		// 2.1: 计算每天课程数
+		int NumPerDay[5]; // 每天课程数
+		int len = ScheduleDetails[i].Length(), AverageNum = len / 5, Overleft = len - AverageNum * 5;
+		for (int j = 0; j < 5; j++)
+		{ // 遍历每周五天
+			NumPerDay[j] = AverageNum;
+			if (Overleft > 0)
+			{ // 多余的课在星期靠前的几天均匀分配
+				NumPerDay[j]++;
+				Overleft--;
+			}
+		}
+
+		// 2.2: 确定具体上课时间
+		// 策略：135优先排课在上午， 24优先排课在下午，以保证上下午分配均匀
+		
+		int curDay = 0, BlockFlag[5][4]; // curDay表示当前课程索引，BlockFlag表示某时间段是否有课
+		CourseType tmpCourse;
+		// 初始化 BlockFlag
+		for (int j = 0; j < 5; j++)
+			for (int k = 0; k < 4; k++)
+				BlockFlag[j][k] = 0;
+
+		// 开始排课
+		for (int j = 0; j < 5; j++)
+		{ // 对每周五天遍历
+			int k = 0;
+			while (k < NumPerDay[j])
+			{ // 每天都要排NumPerDay[j]节课
+				int Flag = 1; // 用于记录是否排课成功
+				if (j % 2 == 0)
+				{ // 周135优先上午
+					ScheduleDetails[i].GetElem(curDay, tmpCourse);
+					tmpCourse.time.weekday = j + 1;
+					if (tmpCourse.credit == 2)
+					{ // 两学时排0、2时段
+						if (BlockFlag[j][0] == 0)
+						{ // 优先上午
+							BlockFlag[j][0] = 1;
+							tmpCourse.time.block = 0;
+						}
+						else if (BlockFlag[j][2] == 0)
+						{ // 在考虑下午
+							BlockFlag[j][2] = 1;
+							tmpCourse.time.block = 2;
+						}
+						else
+						{ // 均满
+							Flag = 0; // 排课不成功
+						}
+					}
+					else
+					{ // 三学时排1、3时段
+						if (BlockFlag[j][1] == 0)
+						{ // 优先上午
+							BlockFlag[j][1] = 1;
+							tmpCourse.time.block = 1;
+						}
+						else if (BlockFlag[j][3] == 0)
+						{ // 再考虑下午
+							BlockFlag[j][3] = 1;
+							tmpCourse.time.block = 3;
+						}
+						else
+						{ // 均满
+							Flag = 0; // 排课不成功
+						}
+					}
+				}
+				else
+				{ // 周24优先下午
+					ScheduleDetails[i].GetElem(curDay, tmpCourse);
+					tmpCourse.time.weekday = j + 1;
+					if (tmpCourse.credit == 2)
+					{ // 两学时排0、2时段
+						if (BlockFlag[j][2] == 0)
+						{ // 优先下午
+							BlockFlag[j][2] = 1;
+							tmpCourse.time.block = 2;
+						}
+						else if (BlockFlag[j][0] == 0)
+						{ // 再考虑上午
+							BlockFlag[j][0] = 1;
+							tmpCourse.time.block = 0;
+						}
+						else
+						{ // 均满
+							Flag = 0; // 排课不成功
+						}
+					}
+					else
+					{ // 三学时排1、3时段
+						if (BlockFlag[j][3] == 0)
+						{ // 优先下午
+							BlockFlag[j][3] = 1;
+							tmpCourse.time.block = 3;
+						}
+						else if (BlockFlag[j][1] == 0)
+						{ // 再考虑上午
+							BlockFlag[j][1] = 1;
+							tmpCourse.time.block = 1;
+						}
+						else
+						{ // 均满
+							Flag = 0; // 排课不成功
+						}
+					}
+				}
+				// 一次排课过程完成
+				if (Flag)
+				{ // 排课成功
+					k++;
+					FinalSchedule[i].AddTail(tmpCourse);
+					ScheduleDetails[i].Delete(curDay, tmpCourse);
+					curDay = 0; // 重置
+				}
+				else
+				{ // 排课不成功
+					curDay++; // 继续排下一门课
+				}
+			}
+		}
+	}
+	
 	// 输出课程表
-	m_outFile << "节次\t\t\t星期一\t\t\t星期二\t\t\t星期三\t\t\t星期四\t\t\t星期五\n";
-	m_outFile << "第一节\n";
-	m_outFile << "第二节\n";
-	m_outFile << "\n课间休息\n\n";
-	m_outFile << "第三节\n";
-	m_outFile << "第四节\n";
-	m_outFile << "第五节\n";
-	m_outFile << "\n午间休息\n\n";
-	m_outFile << "第六节\n";
-	m_outFile << "第七节\n";
-	m_outFile << "\n课间休息\n\n";
-	m_outFile << "第八节\n";
-	m_outFile << "第九节\n";
-	m_outFile << "第十节\n";
-	m_outFile << "\n晚自习\n";
+	for (int i = 0; i < TermsNum; i++)
+	{ // 遍历每学期
+		m_outFile << "第" << i + 1 << "学期课程表" << endl;
+		m_outFile << "   节次\t\t\t星期一\t\t\t星期二\t\t\t星期三\t\t\t星期四\t\t\t星期五\n";
+		m_outFile << " 第一节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(0, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		m_outFile << " 第二节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(0, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		m_outFile << "\n课间休息\n\n";
+
+		m_outFile << " 第三节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(1, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		m_outFile << " 第四节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(1, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		m_outFile << " 第五节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(1, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+
+		m_outFile << "\n午间休息\n\n";
+
+		m_outFile << " 第六节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(2, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		m_outFile << " 第七节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(2, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+
+		m_outFile << "\n课间休息\n\n";
+		
+		m_outFile << " 第八节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(3, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		m_outFile << " 第九节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(3, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		m_outFile << " 第十节\t\t\t";
+		for (int j = 0; j < 5; j++)
+		{ // 遍历同一block下的每五天
+			int id;
+			if ((id = check(3, j, FinalSchedule[i])) != -1)
+			{
+				m_outFile << " " << id - 1 << "\t\t\t\t   ";
+			}
+			else
+			{
+				m_outFile << "\t\t\t\t";
+			}
+		}
+		m_outFile << "\n";
+		
+		m_outFile << "\n晚自习\n";
+
+		m_outFile << "\n\n";
+	}
+
 };
 
 template <int TermsNum>
@@ -232,4 +546,19 @@ void SimpleSchedule<TermsNum>::Run()
 	GenerateSchedule();  // 生成课程表
 };
 
+template <int TermsNum>
+int SimpleSchedule<TermsNum>::check(int j, int k, SqList<CourseType>& List)
+{
+	for (int m = 0; m < List.Length(); m++)
+	{
+		CourseType tmpCourse;
+		List.GetElem(m, tmpCourse);
+		//cout << tmpCourse.id << " " << tmpCourse.time.weekday << " " << tmpCourse.time.block << endl;
+		if (tmpCourse.time.weekday == k + 1 && tmpCourse.time.block == j)
+		{
+			return tmpCourse.id;
+		}
+	}
+	return -1;
+};
 #endif
