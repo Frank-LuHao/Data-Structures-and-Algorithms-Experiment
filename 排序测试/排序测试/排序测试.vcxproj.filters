@@ -15,18 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="第五次实验.cpp">
+    <ClCompile Include="排序测试.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\book_manage_system.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\SimpleLkList.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\SqList.h">
+    <ClInclude Include="..\..\include\sort.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
