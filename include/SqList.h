@@ -19,7 +19,7 @@ public:
 	bool Insert(int position,const ElemType e);//在指定位置插入元素
 	void Traverse(bool (*visit)(const ElemType&))const;//遍历线性表
 	int AddTail(const ElemType e) ;	//添加数据到线性表末尾
-	ElemType operator [] (int position) const;//重载下标运算符
+	ElemType operator[](int position) const;//重载[]运算符
 	virtual SqList& operator = (const SqList<ElemType>& source); // 重载赋值运算符
 protected:
 	int SaveData(ElemType* pTData, int nDataLen);//内部存储数据的私有函数
@@ -37,7 +37,7 @@ SqList<ElemType>::SqList(int nBufferSize)
 
 	m_nBufferLen = nBufferSize;
 	m_nDataLen = 0;
-	memset(m_pElemData, 0, sizeof(ElemType) * m_nBufferLen);
+	//memset(m_pElemData, 0, sizeof(ElemType) * m_nBufferLen);//如果是对象，该句会把对象清零，屏蔽
 }
 
 template <class ElemType> 
@@ -228,14 +228,13 @@ void SqList<ElemType>::Traverse(bool (*visit)(const ElemType&)) const
 			break;//函数指针访问函数返回为false退出循环
 	}
 }
-
 template <class ElemType>
-ElemType SqList<ElemType>::operator [] (int position) const
+ElemType SqList<ElemType>::operator[](int position) const
 {
 	if (position < 0 || position >= m_nDataLen)
 	{
 		cerr << "数组下标越界" << endl;
-		exit(1);
+		exit(0);
 	}
 	ElemType tmp;
 	GetElem(position, tmp);

@@ -1,11 +1,15 @@
 ﻿// 第五次实验.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //
-
+#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include "../../include/book_manage_system.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	BookManageSystem book_manage_system;
+	book_manage_system.Run();
+	return 0;
+    
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

@@ -6,37 +6,9 @@
 #include<iomanip>
 #include "SimpleLkList.h"
 #include "SqList.h"
+#include "data_struct.h"
 #define max(a, b) ((a)>(b)?(a):(b))
 using namespace std;
-
-// 一些所需结构体的定义:
-// 日期结构
-struct Date {
-	int year, month, day;
-};
-
-// 书籍结构
-struct Book {
-	char id[14]; //ISBN号
-	char name[128]; //书名
-	char author[128]; //作者
-	float price; //价格
-	Date buyDate; //购买日期
-	bool isDeleted; //是否删除
-};
-
-//索引结构:
-// 书号主索引
-struct IdIndex { //主关键字
-	char id[14]; //ISBN号
-	int offset; //书籍记录在文件中的偏移量
-};
-
-// 书名次索引
-struct NameIndex { //次关键字
-	char name[128]; //书名
-	SimpleLkList<int> offsetList; //书籍记录在文件中的偏移量链表
-};
 
 // 书籍管理系统类
 class BookManageSystem
@@ -47,25 +19,26 @@ public:
 	void Run(); //运行图书管理系统
 
 private:
-	//数据成员
-	fstream bookFile; // 书籍文件
-	SqList<IdIndex> idIndexList; // ISBN号索引表, 升序
-	SqList<NameIndex> nameIndexList; // 书名索引表, 升序
+	// 数据成员
+	// 文件
+	fstream BookFile; // 书籍文件
+	fstream IdIndexFile; // ISBN号索引文件
+	fstream NameIndexFile; // 书名索引文件
+	// 索引表
+	SqList<IdIndex> IdIndexList; // ISBN号索引表, 升序
+	SqList<NameIndex> NameIndexList; // 书名索引表, 升序
 
 	//成员函数
 	void InsertBook(); // 插入书籍
-	bool InsertBookAux(Book &book, int offset); // 插入书籍辅助函数
-	
 	void DeleteBook(); // 删除书籍
-	void DeleteBookAux(char *id); // 删除书籍辅助函数
-	
 	void SearchBook(); // 查找书籍
 	void SearchByTitle(); // 按书名查找
 	void SearchByAuthor(); // 按作者查找
-	bool BinSearchByTitle(char *name, SimpleLkList<int> &BookList); // 二分查找书名，返回链表
+	bool BinSearchByTitle(char *name, SimpleLkList<int> BookList, int &mid); // 二分查找书名，得到链表，返回值为索引表中位置
+	bool BinSearchById(char *id, int &mid); // 二分查找ISBN号，mid返回索引表中位置，bool返回是否找到
 	
+	// 未完成
 	void UpdateBook(); // 更新书籍
-	
 	void SortByAuthor(); // 按作者名排序
 
 	void DisplayBook(Book &book); // 显示书籍信息
@@ -77,44 +50,60 @@ private:
 BookManageSystem::BookManageSystem()
 {
 	// 打开文件
-	bookFile.open("bookdata.txt");
-	if (!bookFile.is_open())
+	BookFile.open("bookdata.txt"); // 打开数书籍文件
+	if (!BookFile.is_open())
 	{
-		cout << "文件打开失败" << endl;
+		cout << "书籍文件打开失败!\n" << endl;
+		exit(1);
+	}
+	
+	IdIndexFile.open("idindex.txt"); // 打开ISBN号索引文件
+	if (!IdIndexFile.is_open())
+	{
+		cout << "主关键字索引文件打开失败!\n" << endl;
 		exit(1);
 	}
 
-	// 读取文件中的书籍信息
-	// 判断文件是否为空
-	bookFile.seekg(0, ios::end);
-	if (bookFile.tellg() != 0)
-	{ // 文件不为空
-		bookFile.seekg(0, ios::beg);
-		while (!bookFile.eof())
+	NameIndexFile.open("nameindex.txt"); // 打开书名索引文件
+	if (!NameIndexFile.is_open())
+	{
+		cout << "次关键字索引文件打开失败!\n" << endl;
+		exit(1);
+	}
+
+	// 读取并建立索引表
+	// 读取ISBN号索引表
+	IdIndexFile.seekg(ios::beg); // 定位到文件开头
+	if (IdIndexFile.peek() != EOF) 
+	{ // 文件非空，建立主关键字索引表
+		IdIndex TmpIdIndex;
+		while (IdIndexFile.read((char*)&TmpIdIndex, sizeof(IdIndex)))
 		{
-			Book book;
-			IdIndex CurIdIndex;
-			NameIndex CurNameIndex;
-			CurIdIndex.offset = bookFile.tellg(); // 记录书籍在文件中的偏移量
-			bookFile.read((char*)&book, sizeof(Book)); // 读取书籍信息
-			// 插入书籍
-			
-			// 在主表中插入书籍
-			int pos;
-			// 二分找到插入位置
-			strcpy(CurIdIndex.id, book.id);
-			idIndexList.Insert(pos, CurIdIndex);
-			
-			// 在次表中插入书籍
+			IdIndexList.AddTail(TmpIdIndex);
 		}
 	}
+	// 读取书名索引表
+	NameIndexFile.seekg(ios::beg); // 定位到文件开头
+	if (NameIndexFile.peek() != EOF)
+	{ // 文件非空，建立次关键字索引表
+		NameIndex TmpNameIndex;
+		while (NameIndexFile.read((char*)&TmpNameIndex, sizeof(NameIndex)))
+		{
+			NameIndexList.AddTail(TmpNameIndex);
+		}
+	}
+	
 };
 
 // 析构函数
 BookManageSystem::~BookManageSystem()
 {
-	if (bookFile.is_open())
-		bookFile.close();
+	if (BookFile.is_open())
+		BookFile.close();
+	if (IdIndexFile.is_open())
+		IdIndexFile.close();
+	if (NameIndexFile.is_open())
+		NameIndexFile.close();
 };
 
 // 插入书籍
@@ -132,20 +121,34 @@ void BookManageSystem::InsertBook()
 	cout << "请输入书籍的购买日期(year month day，以空格隔开)：";
 	cin >> book.buyDate.year >> book.buyDate.month >> book.buyDate.day;
 
-	//查找书籍是否已经存在
+	// 查找书籍是否已经存在
+	// 由于ISBN号唯一，可以直接在主表中查找（采用二分策略）
+	int loc_id;
+	if (BinSearchById(book.id, loc_id)) {
+		cout << "该书籍已存在！\n" << endl;
+		return;
+	}
+	else 
+	{ // 书籍不存在, 将书籍写入文件尾部，并在索引表中插入书籍
+		SimpleLkList<int> Bookoffset;
+		int loc_name;
+		BinSearchByTitle(book.name, Bookoffset, loc_name);
+		IdIndex CurIdIndex;
+		NameIndex CurNameIndex;
 
-	// 在文件中写入书籍
-	
-	// 插入书籍
+		strcpy(CurIdIndex.id, book.id);
+		strcpy(CurNameIndex.name, book.name);
+		BookFile.seekp(ios::end); // 定位到文件末尾
+		CurIdIndex.offset = BookFile.tellp(); // 记录书籍在文件中的偏移量
+		CurNameIndex.offsetList.Insert(0, CurIdIndex.offset);
+		
+		BookFile.write((char*)&book, sizeof(Book)); // 写入书籍
+		IdIndexList.Insert(loc_id, CurIdIndex); // 插入主关键字索引表
+		NameIndexList.Insert(loc_name, CurNameIndex); // 插入次关键字索引表
+		cout << "插入书籍成功！\n" << endl;
+	}
 
-	
-};
-
-// 插入书籍辅助函数
-bool BookManageSystem::InsertBookAux(Book &book, int offset)
-{
-	// 在主表中插入书籍
-	// 在次表中插入书籍
+	return;
 };
 
 // 删除书籍
@@ -154,17 +157,31 @@ void BookManageSystem::DeleteBook()
 	char id[14];
 	cout << "请输入要删除的书籍的ISBN号：";
 	cin >> id;
-	DeleteBookAux(id);
-};
+	
+	// 查找书籍是否已经存在
+	// 由于ISBN号唯一，可以直接在主表中查找（采用二分策略）
+	int loc_id;
+	if (!BinSearchById(id, loc_id)) {
+		cout << "该书籍不存在！\n" << endl;
+		return;
+	}
+	else
+	{ // 书籍存在, 在索引表中删除书籍
+		IdIndex CurIdIndex;
+		NameIndex CurNameIndex;
+		Book book;
+		
+		BookFile.seekg(IdIndexList[loc_id].offset, ios::beg);
+		BookFile.read((char*)&book, sizeof(Book));
 
-// 删除书籍辅助函数
-void BookManageSystem::DeleteBookAux(char *id)
-{
-	// 在主表中查找书籍
-
-	// 在文件中删除书籍
-
-	// 在主表中删除书籍
+		IdIndexList.Delete(loc_id, CurIdIndex); // 删除主关键字索引表中的记录
+		SimpleLkList<int> Bookoffset;
+		int loc_name;
+		BinSearchByTitle(book.name, Bookoffset, loc_name);
+		NameIndexList.Delete(loc_name, CurNameIndex); // 删除次关键字索引表中的记录
+		cout << "删除书籍成功！\n" << endl;
+	}
+	return;
 };
 
 // 查找书籍
@@ -185,6 +202,9 @@ void BookManageSystem::SearchBook()
 			break;
 		case 3:
 			return;
+		default:
+			cout << "输入错误，请重新输入" << endl;
+			break;
 		}
 	} while (true);
 };
@@ -199,7 +219,8 @@ void BookManageSystem::SearchByTitle()
 	// 在书名索引表中查找
 	// 二分查找
 	SimpleLkList<int> Bookoffset;
-	if (BinSearchByTitle(name, Bookoffset) == 0) {
+	int mid;
+	if (!BinSearchByTitle(name, Bookoffset, mid)) {
 		cout << "未找到相关书籍!\n" << endl;
 		return;
 	}
@@ -211,8 +232,8 @@ void BookManageSystem::SearchByTitle()
 		Book book;
 		int CurOffset;
 		Bookoffset.GetElem(i, CurOffset);
-		bookFile.seekg(CurOffset, ios::beg);
-		bookFile.read((char*)&book, sizeof(Book));
+		BookFile.seekg(CurOffset, ios::beg);
+		BookFile.read((char*)&book, sizeof(Book));
 		BookList.AddTail(book);
 	}
 	// 输出书籍信息
@@ -222,26 +243,31 @@ void BookManageSystem::SearchByTitle()
 };
 
 // 二分查找书名，返回链表
-bool BookManageSystem::BinSearchByTitle(char *name, SimpleLkList<int> &Bookoffset)
+bool BookManageSystem::BinSearchByTitle(char *name, SimpleLkList<int> Bookoffset, int &mid)
 {
+	if (NameIndexList.Length() == 0)
+	{
+		mid = 0;
+		return 0;
+	}
 	// 在书名索引表中查找
 	// 二分查找
-	int low = 0, high = nameIndexList.Length() - 1;
+	int low = 0, high = NameIndexList.Length() - 1;
 	while (low <= high) {
-		int mid = (low + high) >> 1;
-		if (strcmp(nameIndexList[mid].name, name) == 0) {
+		mid = (low + high) >> 1;
+		if (strcmp(NameIndexList[mid].name, name) == 0) {
 			// 找到书名
-			Bookoffset = nameIndexList[mid].offsetList;
-			return true;
+			Bookoffset = NameIndexList[mid].offsetList;
+			return 1;
 		}
-		else if (strcmp(nameIndexList[mid].name, name) < 0) {
+		else if (strcmp(NameIndexList[mid].name, name) < 0) {
 			low = mid + 1;
 		}
 		else {
 			high = mid;
 		}
 	}
-	return false;
+	return 0;
 };
 
 // 按作者查找
@@ -250,28 +276,53 @@ void BookManageSystem::SearchByAuthor()
 	char author[128];
 	cout << "请输入要查找的作者：";
 	cin >> author;
-	bookFile.clear(); // 清除文件流状态
-	bookFile.seekg(0, ios::beg); // 定位到文件开头
+	BookFile.clear(); // 清除文件流状态
+	BookFile.seekg(0, ios::beg); // 定位到文件开头
 	Book book;
 	SimpleLkList<Book> bookList;
 	bool flag = 0;
 	do {
-		bookFile.read((char*) &book, sizeof(Book));
+		BookFile.read((char*) &book, sizeof(Book));
 		if (strcmp(book.author, author) == 0)
 		{
 			flag = 1;
 			bookList.AddTail(book);
 		}
-	} while(!bookFile.eof());
+	} while(!BookFile.eof());
 	if (flag) {
-		cout << "查找到的书籍信息如下：\n" << endl;
+		cout << "查找到的书籍信息如下：" << endl;
 		DisplayBook(bookList);
 	}
 	else {
-		cout << "未找到相关书籍!\n" << endl;
+		cout << "未找到相关书籍!" << endl;
 	}
 	
 	return;
+};
+
+// 二分查找ISBN号，返回索引表中位置，若未找到返回-1
+bool BookManageSystem::BinSearchById(char *id, int &mid)
+{
+	if (IdIndexList.Length() == 0)
+	{
+		mid = 0;
+		return 0;
+	}
+	int low = 0, high = IdIndexList.Length() - 1;
+	while (low <= high) {
+		mid = (low + high) >> 1;
+		if (strcmp(IdIndexList[mid].id, id) == 0) {
+			// 找到书籍
+			return 1;
+		}
+		else if (strcmp(IdIndexList[mid].id, id) < 0) {
+			low = mid + 1;
+		}
+		else {
+			high = mid;
+		}
+	}
+	return 0;
 };
 
 // 运行图书管理系统
@@ -280,7 +331,7 @@ void BookManageSystem::Run()
 	int choice;
 	while (true)
 	{
-		cout << "请选择操作：1.插入书籍 2.删除书籍 3.更新记录 4.查找书籍 5.按作者名排序 6.退出\n" << endl;
+		cout << "请选择操作：1.插入书籍 2.删除书籍 3.更新记录 4.查找书籍 5.按作者名排序 6.退出\n";
 		cout << "请输入选择：";
 		cin >> choice;
 		switch (choice)
@@ -300,6 +351,7 @@ void BookManageSystem::Run()
 		case 5:
 			break;
 		case 6:
+			cout << "成功退出系统!\n";
 			return;
 		default:
 			cout << "输入错误，请重新输入" << endl;

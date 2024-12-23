@@ -133,6 +133,7 @@
     <ClInclude Include="..\..\include\book_manage_system.h" />
     <ClInclude Include="..\..\include\SimpleLkList.h" />
     <ClInclude Include="..\..\include\SqList.h" />
+    <ClInclude Include="data_struct.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
