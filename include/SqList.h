@@ -1,8 +1,6 @@
 #if !defined(_SQ_LIST_H_)
 #define  _SQ_LIST_H_
 #include "ListBase.h"
-#include <iostream>
-using namespace std;
 template <class ElemType> 
 class SqList: public ListBase <ElemType>
 {
@@ -140,12 +138,12 @@ bool SqList<ElemType>::Insert(int position, const ElemType eData)
 	}
 	if (position <= m_nDataLen - 1)
 	{//后面有数据
-		/* 该循环语句块被memmove替代,速度更快
+		// 该循环语句块被memmove替代,速度更快,但适用数据类型为没有重载'='的对象
 		for (int i = m_nDataLen-1; i >=position; i--)
 		{
 			m_pElemData[i+1] = m_pElemData[i];
-		}*/
-		memmove(m_pElemData + position + 1, m_pElemData + position, sizeof(ElemType) * (m_nDataLen - position));
+		}
+		//memmove(m_pElemData + position + 1, m_pElemData + position, sizeof(ElemType) * (m_nDataLen - position));
 		m_pElemData[position] = eData;
 		m_nDataLen++;
 	}
@@ -182,12 +180,12 @@ bool SqList<ElemType>::Delete(int position,ElemType& eData)
 	
 	if (position < m_nDataLen - 1) //如果是最后一条数据，不需要移动后面的数据了
 	{
-		/*该循环语句块被memmove替代,速度更快
+		//该循环语句块被memmove替代,速度更快,但适用于没有重载'='的数据对象
 		for (int i = position + 1; i < m_nDataLen; i++)
 		{
 			m_pElemData[i - 1] = m_pElemData[i];
-		}*/
-		memmove(m_pElemData + position, m_pElemData + position + 1, (m_nDataLen - position - 1) * sizeof(ElemType));//后面的所有数据前移
+		}
+		//memmove(m_pElemData + position, m_pElemData + position + 1, (m_nDataLen - position - 1) * sizeof(ElemType));//后面的所有数据前移
 	}
 	m_nDataLen--;
 	return true;
