@@ -66,17 +66,7 @@ template <class ElemType>
 int QSortPartition(ElemType elem[], int low, int high)
 {
 	ElemType  pivotValue = elem[low];		// 默认情况下轴值为第一个元素
-	if (high - low > 1)
-	{//区间内有超过两个个元素，采样得到中值
-		int mid = (high + low) >> 1;
-		ElemType eMax = elem[mid];
-		ElemType eMin = elem[high];
-		ElemType tmp;
-		if (eMin > eMax)
-			SWAP(eMax, eMin, tmp);
-		if (pivotValue > eMax) pivotValue = eMax;
-		else if (pivotValue < eMin) pivotValue = eMin;
-	}
+	
 	while (low != high) 
 	{		// 开始进行分割
 		while (low < high && elem[high] >= pivotValue)high--;	// 找<轴值的记录

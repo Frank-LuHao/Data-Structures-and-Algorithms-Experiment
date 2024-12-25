@@ -14,6 +14,7 @@ struct Book {
 	char author[32]; //作者
 	float price; //价格
 	Date buyDate; //购买日期
+	bool IsDeleted; //是否被删除
 };
 
 //索引结构:
