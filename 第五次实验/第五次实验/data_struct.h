@@ -10,8 +10,8 @@ struct Date {
 // 书籍结构
 struct Book {
 	char id[14]; //ISBN号
-	char name[128]; //书名
-	char author[128]; //作者
+	char name[32]; //书名
+	char author[32]; //作者
 	float price; //价格
 	Date buyDate; //购买日期
 };
