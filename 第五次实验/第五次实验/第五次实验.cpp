@@ -9,7 +9,6 @@ int main()
 	BookManageSystem book_manage_system;
 	book_manage_system.Run();
 	return 0;
-    
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单

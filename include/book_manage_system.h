@@ -8,7 +8,6 @@
 #include "SimpleLkList.h"
 #include "SqList.h"
 #include "data_struct.h"
-#include "sort.h"
 #define MY_MAX(a, b) ((a)>(b)?(a):(b))
 using namespace std;
 
@@ -31,6 +30,8 @@ private:
 	//成员函数
 	void init(); // 初始化函数
 	void save(); // 保存函数
+	void test(); // 测试函数
+	void show();
 
 	void InsertBook(); // 插入书籍
 	bool InsertBookAux(Book &book); // 插入书籍辅助函数
@@ -64,6 +65,25 @@ BookManageSystem::~BookManageSystem()
 	save(); // 保存
 };
 
+void BookManageSystem::show()
+{
+	cout << "次关键字索引表：" << endl;
+	for (int i = 0; i < NameIndexList.Length(); i++)
+	{
+		NameIndex tmp;
+		NameIndexList.GetElem(i, tmp);
+		cout << "书名：" << tmp.name << "  位置：";
+		//cout << tmp.offsetList.Length() << endl;
+		for (int j = 0; j < tmp.offsetList.Length(); j++)
+		{
+			int CurOffset;
+			tmp.offsetList.GetElem(j, CurOffset);
+			cout << CurOffset << " ";
+		}
+		cout << endl;
+	}
+};
+
 void BookManageSystem::init()
 {
 	cout << "程序启动，请稍等......" << endl;
@@ -93,6 +113,7 @@ void BookManageSystem::init()
 
 		// 读取书籍信息
 		BookFile.read((char*)&book, sizeof(Book));
+		cout << "正在插入:" << book.name << endl;
 
 		// 插入主关键字索引表
 		int idloc;
@@ -116,14 +137,17 @@ void BookManageSystem::init()
 			NameIndexList.GetElem(loc_name, tmp); // 获取原来的书名索引
 			tmp.offsetList.AddTail(CurIdIndex.offset);// 插入新的偏移量
 			NameIndexList.SetElem(loc_name, tmp);// 更新书名索引
+			//Bookoffset.AddTail(CurIdIndex.offset); // 这句引用貌似无法正确修改
 		}
 		else
 		{ // 书名不存在
 			NameIndex CurNameIndex;
 			strcpy(CurNameIndex.name, book.name);
-			CurNameIndex.offsetList.Insert(0, CurIdIndex.offset);
+			CurNameIndex.offsetList.AddTail(CurIdIndex.offset);
 			NameIndexList.Insert(loc_name, CurNameIndex);
 		}
+
+		show();
 	}
 
 	cout << "索引表初始化完成" << endl;
@@ -370,12 +394,9 @@ void BookManageSystem::SearchByTitle()
 // 二分查找书名，返回链表
 bool BookManageSystem::BinSearchByTitle(char *name, SimpleLkList<int> &Bookoffset, int &mid)
 {
-	//cout << "进入二分书名查找函数" << endl;
-
 	if (NameIndexList.Length() == 0)
 	{
 		mid = 0;
-		//cout << "退出二分书名查找函数" << endl;
 		return 0;
 	}
 	// 在书名索引表中查找
@@ -390,7 +411,6 @@ bool BookManageSystem::BinSearchByTitle(char *name, SimpleLkList<int> &Bookoffse
 			//cout << "赋值前元素个数：" << tmp.offsetList.Length() << endl;
 			Bookoffset = tmp.offsetList; // 返回链表
 			//cout << "赋值后元素个数：" << Bookoffset.Length() << endl;
-			//cout << "退出二分书名查找函数" << endl;
 			return 1;
 		}
 		else if (strcmp(tmp.name, name) < 0) {
@@ -401,9 +421,8 @@ bool BookManageSystem::BinSearchByTitle(char *name, SimpleLkList<int> &Bookoffse
 		}
 	}
 
-	mid = low;
-	//cout << "退出二分书名查找函数" << endl;
-
+	mid = low; // 返回插入位置
+	
 	return 0;
 };
 
@@ -510,6 +529,9 @@ void BookManageSystem::Run()
 		case 6:
 			cout << "成功退出系统!\n";
 			return;
+		case 7:
+			test();
+			break;
 		default:
 			cout << "输入数字错误，请重新输入" << endl;
 			break;
@@ -632,8 +654,7 @@ void BookManageSystem::SortByAuthor()
 	BookFile.seekg(0, ios::end); // 定位到文件末尾
 	int FileLen = BookFile.tellg(); // 文件长度
 	int BookNums = FileLen / sizeof(Book); // 书籍数量
-	//cout << "书籍数量" << BookNums << endl;
-
+	
 	BookFile.clear(); // 清除文件流状态
 	BookFile.seekg(0, ios::beg); // 定位到文件开头
 	Book book;
@@ -679,5 +700,33 @@ void BookManageSystem::SortByAuthor()
 	cout << "按作者名排序后的书籍信息如下：" << endl;
 	DisplayBook(bookList);
 	return;
+};
+
+// 测试函数
+void BookManageSystem::test()
+{
+	cout << "测试函数" << endl;
+	cout << "主关键字索引表：" << endl;
+	for (int i = 0; i < IdIndexList.Length(); i++)
+	{
+		IdIndex tmp;
+		IdIndexList.GetElem(i, tmp);
+		cout << "ISBN号：" << tmp.id << "  位置：" << tmp.offset << endl;
+	}
+	cout << "次关键字索引表：" << endl;
+	for (int i = 0; i < NameIndexList.Length(); i++)
+	{
+		NameIndex tmp;
+		NameIndexList.GetElem(i, tmp);
+		cout << "书名：" << tmp.name << "  位置：";
+		//cout << tmp.offsetList.Length() << endl;
+		for (int j = 0; j < tmp.offsetList.Length(); j++)
+		{
+			int CurOffset;
+			tmp.offsetList.GetElem(j, CurOffset);
+			cout << CurOffset << " ";
+		}
+		cout << endl;
+	}
 };
 #endif
